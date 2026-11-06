@@ -1,0 +1,201 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+<%- include('../partials/flash') %>
+
+<main class="flex-grow py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+  
+  <div class="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/25 text-xs font-mono font-semibold text-amber-300 mb-2">
+        <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+        <span>Ligaleitung Administrations-Konsole</span>
+      </div>
+      <h1 class="text-3xl font-bold tracking-tight text-white">Admin-Zentrale</h1>
+      <p class="text-sm text-slate-400 mt-1">Verwalte Saisons, Teams, Fahrerzuordnungen, Rennergebnisse und den Discord-Bot</p>
+    </div>
+
+    <!-- Quick Navigation -->
+    <div class="flex items-center gap-2 flex-wrap">
+      <a href="/admin/teams" class="px-3.5 py-2 rounded-xl bg-white/10 border border-white/15 hover:bg-white/15 text-xs font-semibold text-white transition-all shadow-sm">
+        🏎️ Team-Management
+      </a>
+      <a href="/admin/seasons" class="px-3.5 py-2 rounded-xl bg-white/10 border border-white/15 hover:bg-white/15 text-xs font-semibold text-white transition-all shadow-sm">
+        📅 Saisons &amp; Kalender
+      </a>
+      <a href="/admin/stewarding" class="px-3.5 py-2 rounded-xl bg-amber-500/15 border border-amber-500/30 hover:bg-amber-500/25 text-xs font-semibold text-amber-300 transition-all shadow-sm">
+        ⚖️ Stewarding &amp; Strafen
+      </a>
+    </div>
+  </div>
+
+  <!-- Key Metrics Stats im thegridcom.org Style -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+    <div class="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl p-5 shadow-xl">
+      <span class="text-[10px] font-mono uppercase text-slate-400 font-bold block mb-1">Registrierte Fahrer</span>
+      <span class="text-3xl font-mono font-bold text-white tabular-nums"><%= stats.totalDrivers %></span>
+      <div class="text-[11px] text-slate-400 mt-1 font-mono">
+        <%= stats.mainDrivers %> Stamm · <%= stats.reserveDrivers %> Reserve
+      </div>
+    </div>
+
+    <div class="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl p-5 shadow-xl">
+      <span class="text-[10px] font-mono uppercase text-slate-400 font-bold block mb-1">Konstrukteure / Teams</span>
+      <span class="text-3xl font-mono font-bold text-white tabular-nums"><%= stats.totalTeams %></span>
+      <div class="text-[11px] text-slate-400 mt-1 font-mono">
+        Max. 2 Stamm / Team
+      </div>
+    </div>
+
+    <div class="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl p-5 shadow-xl">
+      <span class="text-[10px] font-mono uppercase text-slate-400 font-bold block mb-1">Aktive Saison</span>
+      <span class="text-lg font-bold text-white truncate block">
+        <%= stats.activeSeason ? stats.activeSeason.name : 'Keine aktiv' %>
+      </span>
+      <div class="text-[11px] text-slate-400 mt-1 font-mono">
+        <%= stats.activeSeason?.races?.length || 0 %> Rennen im Kalender
+      </div>
+    </div>
+
+    <div class="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl p-5 shadow-xl flex flex-col justify-between">
+      <div>
+        <span class="text-[10px] font-mono uppercase text-slate-400 font-bold block mb-1">Discord-Bot Integration</span>
+        <div class="flex items-center gap-2 mt-1">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span class="text-sm font-mono font-bold text-emerald-400">Live-Sync Aktiv</span>
+        </div>
+        <div class="text-[11px] text-slate-400 mt-1 font-mono">
+          Auto-Updates für #rangliste, #fahrerfeld &amp; Check-In
+        </div>
+      </div>
+      <form action="/admin/discord/sync-embeds" method="POST" class="mt-3">
+        <button type="submit" class="w-full px-3 py-1.5 rounded-lg bg-[#5865F2]/20 hover:bg-[#5865F2] border border-[#5865F2]/40 text-indigo-200 hover:text-white text-[11px] font-semibold flex items-center justify-center gap-1.5 transition-all">
+          <i class="fab fa-discord text-xs"></i>
+          <span>Live-Embeds synchronisieren</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- System Announcement Card -->
+  <div class="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl p-6 mb-8 shadow-xl">
+    <div class="flex items-center justify-between mb-3">
+      <div class="flex items-center gap-2.5">
+        <span class="text-2xl">📢</span>
+        <div>
+          <h3 class="text-base font-bold text-white">System-Ankündigung (Banner)</h3>
+          <p class="text-xs text-slate-400">
+            Schalte eine prominente Nachricht für alle Besucher frei (z. B. "Saison 1 ist vorbei. Checkt die Gesamtwertung!").
+          </p>
+        </div>
+      </div>
+      <span class="px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase <%= (announcement && announcement.active) ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-white/5 text-slate-400 border border-white/10' %>">
+        <%= (announcement && announcement.active) ? 'Live Aktiv' : 'Inaktiv (Standard)' %>
+      </span>
+    </div>
+
+    <form action="/admin/announcement" method="POST" class="space-y-4 pt-2">
+      <div>
+        <label class="block text-slate-400 font-mono text-xs mb-1">Ankündigungstext</label>
+        <input 
+          type="text" 
+          name="text" 
+          value="<%= announcement ? announcement.text : '' %>"
+          placeholder="z. B. Saison 1 ist vorbei. Registrierung für die Winter-Meisterschaft öffnet bald!" 
+          class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/80 border border-white/10 text-white text-xs focus:outline-none focus:border-white/25"
+        >
+      </div>
+
+      <div class="flex items-center justify-between flex-wrap gap-4 pt-1">
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input 
+            type="checkbox" 
+            name="active" 
+            value="true" 
+            <%= (announcement && announcement.active) ? 'checked' : '' %>
+            class="rounded border-slate-700 bg-slate-950 text-[#DE382B] focus:ring-0"
+          >
+          <span class="text-xs text-slate-300 font-medium">Banner für alle Besucher aktivieren</span>
+        </label>
+
+        <button type="submit" class="px-5 py-2.5 rounded-xl bg-[#DE382B] hover:bg-[#C52B1F] text-white text-xs font-semibold transition-all shadow-lg hover:-translate-y-0.5">
+          Ankündigung speichern
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Discord Bot Live Synchronization Card -->
+  <div class="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl p-6 mb-8 shadow-xl">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-2.5 mb-1">
+          <i class="fab fa-discord text-xl text-[#5865F2]"></i>
+          <h3 class="text-base font-bold text-white">Discord Live-Tabelle synchronisieren</h3>
+        </div>
+        <p class="text-xs text-slate-400">
+          Aktualisiert die festgelegte Ranglisten-Nachricht im Discord-Kanal <code class="text-slate-200 bg-white/5 px-1.5 py-0.5 rounded">#rangliste</code> sofort mit den neuesten WM-Punkten.
+        </p>
+      </div>
+
+      <form action="/admin/bot/update-standings" method="POST" class="inline">
+        <input type="hidden" name="seasonId" value="<%= stats.activeSeason ? stats.activeSeason.id : '' %>">
+        <button type="submit" class="px-5 py-2.5 rounded-xl bg-[#5865F2] hover:bg-[#4752C4] text-white text-xs font-semibold flex items-center gap-2 transition-all shadow-lg hover:-translate-y-0.5">
+          <i class="fas fa-rotate"></i>
+          <span>Live-Rangliste jetzt editieren</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Recent Races & Fast Results Entry -->
+  <div class="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden mb-8 shadow-2xl">
+    <div class="p-5 border-b border-white/10 flex items-center justify-between">
+      <div>
+        <span class="text-[10px] font-mono uppercase text-[#DE382B] font-bold tracking-wider">Ergebnis-Verwaltung</span>
+        <h3 class="text-base font-bold text-white">Rennen &amp; Schnellerfassung</h3>
+      </div>
+      <a href="/admin/seasons" class="text-xs text-slate-400 hover:text-white transition-colors">Rennen hinzufügen ›</a>
+    </div>
+
+    <% if (recentRaces.length === 0) { %>
+      <div class="p-8 text-center text-xs text-slate-400">
+        Keine Rennen vorhanden. Bitte lege in der Saisonverwaltung Rennen an.
+      </div>
+    <% } else { %>
+      <div class="divide-y divide-white/5">
+        <% recentRaces.forEach((race) => { %>
+          <div class="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-white/[0.03] transition-colors">
+            <div class="flex items-center gap-3">
+              <span class="text-2xl"><%= race.flagEmoji %></span>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h4 class="text-sm font-bold text-white">
+                    Runde <%= race.roundNumber %>: <%= race.trackName %>
+                  </h4>
+                  <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono <%= race.status === 'COMPLETED' ? 'bg-white/10 text-slate-400' : 'bg-emerald-500/20 text-emerald-300' %>">
+                    <%= race.status %>
+                  </span>
+                </div>
+                <div class="text-xs text-slate-400 font-mono mt-0.5">
+                  <%= new Date(race.date).toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) %> Uhr · <%= (race._count?.attendances ?? race.attendances?.length ?? 0) %> Check-Ins
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <a href="/admin/races/<%= race.id %>/results" class="px-4 py-2 rounded-xl bg-[#DE382B] hover:bg-[#C52B1F] text-xs font-semibold text-white transition-all shadow-md hover:-translate-y-0.5">
+                Ergebnisse erfassen (1–20)
+              </a>
+              <a href="/races/<%= race.id %>" class="px-3.5 py-2 rounded-xl bg-white/10 border border-white/15 hover:bg-white/15 text-xs text-slate-300 hover:text-white transition-all">
+                Ansehen
+              </a>
+            </div>
+          </div>
+        <% }); %>
+      </div>
+    <% } %>
+  </div>
+
+</main>
+
+<%- include('../partials/footer') %>

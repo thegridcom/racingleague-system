@@ -1,0 +1,486 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+<%- include('../partials/flash') %>
+
+<%
+  const platformLabelMap = {
+    'PC_STEAM': 'Steam (PC)',
+    'PC_EA': 'EA App (PC)',
+    'PC_XBOX': 'Xbox App (PC)',
+    'PC_EPIC': 'Epic Games (PC)',
+    'PLAYSTATION': 'PlayStation (PSN)',
+    'PS5': 'PlayStation (PSN)',
+    'XBOX': 'Xbox Console',
+    'PC': 'PC'
+  };
+  const currentPlatformLabel = platformLabelMap[driverData.user.platform] || driverData.user.platform || 'PC';
+%>
+
+<main class="flex-grow py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+  
+  <!-- Driver Header / Hero Banner im thegridcom.org Glassmorphism-Look -->
+  <div class="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl p-6 sm:p-7 mb-8 relative overflow-hidden shadow-2xl">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+      
+      <div class="flex items-center gap-4 sm:gap-5">
+        <!-- Discord Avatar mit Motorsport-Startnummer Badge -->
+        <% 
+          const dashAvatarUrl = (driverData.user.discordAvatar && driverData.user.discordId)
+            ? `https://cdn.discordapp.com/avatars/${driverData.user.discordId}/${driverData.user.discordAvatar}.png?size=128`
+            : `https://cdn.discordapp.com/embed/avatars/${(driverData.user.discordId ? Number(BigInt(driverData.user.discordId) >> 22n) % 6 : 0)}.png`;
+        %>
+        <div class="relative flex-shrink-0">
+          <img 
+            src="<%= dashAvatarUrl %>" 
+            alt="<%= driverData.user.discordUsername %>" 
+            class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-white/15 bg-slate-950 shadow-lg"
+            onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'; this.onerror=null;"
+          >
+        </div>
+
+        <!-- Motorsport Startnummer Badge -->
+        <div class="w-14 h-16 sm:w-16 sm:h-20 rounded-2xl bg-slate-950/80 border-2 border-[#DE382B] flex flex-col items-center justify-center shadow-lg shadow-red-950/30 flex-shrink-0">
+          <span class="text-[8px] sm:text-[9px] font-mono uppercase font-bold text-slate-400">CAR</span>
+          <span class="text-xl sm:text-2xl font-mono font-black text-white tabular-nums">
+            <%= driverData.user.raceNumber ?? '?' %>
+          </span>
+        </div>
+
+        <div>
+          <div class="flex items-center gap-2 mb-1.5 flex-wrap">
+            <h1 class="text-2xl sm:text-3xl font-bold text-white">
+              <%= driverData.user.platformUsername || driverData.user.gamertag || driverData.user.discordUsername %>
+            </h1>
+            <% if (driverData.user.team || driverData.user.role === 'DRIVER') { %>
+              <span class="px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                Stammfahrer
+              </span>
+            <% } else { %>
+              <span class="px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                Ersatzfahrer
+              </span>
+            <% } %>
+
+            <% if (driverData.user.isAdmin || driverData.user.role === 'ADMIN') { %>
+              <a href="/admin" class="px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:bg-amber-500/30 flex items-center gap-1.5 transition-colors">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                Admin
+              </a>
+            <% } %>
+            <span class="px-2.5 py-1 rounded-full bg-white/[0.04] border border-white/10 text-[10px] font-mono text-slate-300">
+              <%= currentPlatformLabel %>
+            </span>
+          </div>
+
+          <!-- Crossplay & Team Badges -->
+          <div class="text-xs text-slate-400 flex items-center gap-3 flex-wrap">
+            <div class="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-black/40 border border-white/10 text-[11px] font-mono">
+              <span class="text-amber-400 font-bold">EA-ID:</span>
+              <span class="text-white font-medium select-all"><%= driverData.user.eaId || driverData.user.gamertag || 'Fehlt' %></span>
+            </div>
+
+            <span>•</span>
+            <span>Team: 
+              <% if (driverData.user.team) { %>
+                <strong class="text-white font-medium" style="color: <%= driverData.user.team.colorHex %>">
+                  <%= driverData.user.team.name %> (<%= driverData.user.team.shortCode %>)
+                </strong>
+              <% } else { %>
+                <span class="italic text-slate-400">Freier Fahrer</span>
+              <% } %>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Action Buttons -->
+      <div class="flex items-center gap-3">
+        <a href="#anmeldung" class="px-5 py-2.5 rounded-xl bg-[#DE382B] hover:bg-[#C52B1F] text-xs font-semibold text-white transition-all shadow-lg hover:-translate-y-0.5 flex items-center gap-1.5">
+          <i class="fas fa-calendar-check text-xs"></i>
+          <span>Renn-Check-In</span>
+        </a>
+        <a href="#profil" class="px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 text-xs font-medium text-white transition-all flex items-center gap-1.5">
+          <i class="fas fa-sliders text-xs"></i>
+          <span>Setup anpassen</span>
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Stats Grid im thegridcom.org Glassmorphism-Look -->
+  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-8">
+    <div class="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl p-4 text-center shadow-lg hover:border-white/20 transition-all">
+      <span class="text-[10px] font-mono uppercase text-slate-400 font-semibold block mb-1">WM-Punkte</span>
+      <span class="text-2xl font-mono font-bold text-white tabular-nums"><%= driverData.stats.totalPoints %></span>
+      <% if (driverData.stats.pointAdjustments && driverData.stats.pointAdjustments !== 0) { %>
+        <span class="text-[10px] font-mono block text-slate-400 mt-0.5">
+          (<%= driverData.stats.pointAdjustments > 0 ? '+' : '' %><%= driverData.stats.pointAdjustments %> Stewarding)
+        </span>
+      <% } %>
+    </div>
+    
+    <div class="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl p-4 text-center shadow-lg hover:border-white/20 transition-all">
+      <span class="text-[10px] font-mono uppercase text-slate-400 font-semibold block mb-1">Siege (P1)</span>
+      <span class="text-2xl font-mono font-bold text-amber-400 tabular-nums"><%= driverData.stats.wins %></span>
+    </div>
+    
+    <div class="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl p-4 text-center shadow-lg hover:border-white/20 transition-all">
+      <span class="text-[10px] font-mono uppercase text-slate-400 font-semibold block mb-1">Podien (Top 3)</span>
+      <span class="text-2xl font-mono font-bold text-slate-200 tabular-nums"><%= driverData.stats.podiums %></span>
+    </div>
+
+    <div class="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl p-4 text-center shadow-lg hover:border-white/20 transition-all">
+      <span class="text-[10px] font-mono uppercase text-slate-400 font-semibold block mb-1">Fastest Laps</span>
+      <span class="text-2xl font-mono font-bold text-purple-400 tabular-nums"><%= driverData.stats.fastestLaps %></span>
+    </div>
+
+    <div class="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl p-4 text-center shadow-lg hover:border-white/20 transition-all">
+      <span class="text-[10px] font-mono uppercase text-slate-400 font-semibold block mb-1">Verwarnungen</span>
+      <span class="text-2xl font-mono font-bold text-amber-300 tabular-nums"><%= driverData.stats.warningsCount %></span>
+    </div>
+
+    <div class="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl p-4 text-center shadow-lg hover:border-white/20 transition-all">
+      <span class="text-[10px] font-mono uppercase text-slate-400 font-semibold block mb-1">Strafpunkte</span>
+      <span class="text-2xl font-mono font-bold <%= driverData.stats.penaltyPoints > 0 ? 'text-rose-400' : 'text-slate-400' %> tabular-nums">
+        <%= driverData.stats.penaltyPoints %>
+      </span>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12">
+    
+    <!-- Left: Anstehende Rennen & 1-Klick Check-In -->
+    <div class="lg:col-span-7 space-y-6" id="anmeldung">
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="text-[10px] font-mono uppercase text-[#DE382B] font-bold tracking-wider flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#DE382B] animate-pulse"></span>
+            Renntag-Planung
+          </span>
+          <h2 class="text-lg font-bold text-white">Anstehende Rennen &amp; Check-In</h2>
+        </div>
+        <span class="text-xs text-slate-400 font-mono">Format: 50% Renndistanz</span>
+      </div>
+
+      <% if (driverData.nextRaces.length === 0) { %>
+        <div class="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl p-8 text-center text-xs text-slate-400">
+          Derzeit sind keine anstehenden Rennen geplant.
+        </div>
+      <% } else { %>
+        <div class="space-y-4">
+          <% driverData.nextRaces.forEach((race) => { 
+            const attendance = race.attendances.find((a) => a.userId === driverData.user.id);
+            const currentStatus = attendance ? attendance.status : null;
+          %>
+            <div class="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl p-5 hover:border-white/20 transition-all shadow-xl">
+              <div class="flex items-start justify-between gap-4 mb-4">
+                <div class="flex items-center gap-3.5">
+                  <span class="text-2xl"><%= race.flagEmoji %></span>
+                  <div>
+                    <h3 class="text-base font-bold text-white">
+                      R<%= race.roundNumber %>: <%= race.trackName %>
+                    </h3>
+                    <div class="text-xs text-slate-400 font-mono mt-0.5">
+                      <%= new Date(race.date).toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) %> Uhr · <%= race.laps %> Runden (50%)
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Statusanzeige -->
+                <div>
+                  <% if (currentStatus === 'ATTENDING') { %>
+                    <span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-mono font-bold">
+                      🟢 Zugesagt
+                    </span>
+                  <% } else if (currentStatus === 'ABSENT' || currentStatus === 'DECLINED') { %>
+                    <span class="px-3 py-1 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40 text-xs font-mono font-bold">
+                      🔴 Abgemeldet
+                    </span>
+                  <% } else if (currentStatus === 'RESERVE' || currentStatus === 'UNCERTAIN') { %>
+                    <span class="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-mono font-bold">
+                      🟡 Unsicher / Reserve
+                    </span>
+                  <% } else { %>
+                    <span class="px-3 py-1 rounded-full bg-white/5 text-slate-400 border border-white/10 text-xs font-mono">
+                      ⚪ Nicht gemeldet
+                    </span>
+                  <% } %>
+                </div>
+              </div>
+
+              <!-- Interaktive Buttons (Schreibt in DB & triggert Discord) -->
+              <div class="grid grid-cols-3 gap-2.5 pt-3 border-t border-white/10">
+                <form action="/attendance/checkin" method="POST" class="w-full">
+                  <input type="hidden" name="raceId" value="<%= race.id %>">
+                  <input type="hidden" name="status" value="ATTENDING">
+                  <input type="hidden" name="returnTo" value="/driver/dashboard">
+                  <button type="submit" class="w-full py-2.5 rounded-xl font-semibold text-xs transition-all flex items-center justify-center gap-1.5 <%= currentStatus === 'ATTENDING' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-950/40' : 'bg-emerald-950/30 text-emerald-300 hover:bg-emerald-900/50 border border-emerald-500/30' %>">
+                    <span>🟢 Bin dabei</span>
+                  </button>
+                </form>
+
+                <form action="/attendance/checkin" method="POST" class="w-full">
+                  <input type="hidden" name="raceId" value="<%= race.id %>">
+                  <input type="hidden" name="status" value="ABSENT">
+                  <input type="hidden" name="returnTo" value="/driver/dashboard">
+                  <button type="submit" class="w-full py-2.5 rounded-xl font-semibold text-xs transition-all flex items-center justify-center gap-1.5 <%= (currentStatus === 'ABSENT' || currentStatus === 'DECLINED') ? 'bg-rose-600 text-white shadow-lg shadow-rose-950/40' : 'bg-rose-950/30 text-rose-300 hover:bg-rose-900/50 border border-rose-500/30' %>">
+                    <span>🔴 Kann nicht</span>
+                  </button>
+                </form>
+
+                <form action="/attendance/checkin" method="POST" class="w-full">
+                  <input type="hidden" name="raceId" value="<%= race.id %>">
+                  <input type="hidden" name="status" value="RESERVE">
+                  <input type="hidden" name="returnTo" value="/driver/dashboard">
+                  <button type="submit" class="w-full py-2.5 rounded-xl font-semibold text-xs transition-all flex items-center justify-center gap-1.5 <%= (currentStatus === 'RESERVE' || currentStatus === 'UNCERTAIN') ? 'bg-amber-600 text-white shadow-lg shadow-amber-950/40' : 'bg-amber-950/30 text-amber-300 hover:bg-amber-900/50 border border-amber-500/30' %>">
+                    <span>🟡 Unsicher</span>
+                  </button>
+                </form>
+              </div>
+
+            </div>
+          <% }); %>
+        </div>
+      <% } %>
+
+      <!-- Stewarding & Strafen Historie falls vorhanden -->
+      <% if (driverData.penalties && driverData.penalties.length > 0) { %>
+        <div class="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl p-5 shadow-xl">
+          <h3 class="text-sm font-bold text-white mb-3 flex items-center gap-2">
+            <i class="fas fa-scale-balanced text-amber-400"></i>
+            <span>Stewarding &amp; Lizenzentscheidungen</span>
+          </h3>
+          <div class="space-y-2">
+            <% driverData.penalties.forEach(p => { %>
+              <div class="p-3 rounded-xl bg-slate-950/60 border border-white/5 flex items-center justify-between text-xs">
+                <div>
+                  <span class="font-bold text-white"><%= p.race ? p.race.trackName : 'Saisonentscheid' %>:</span>
+                  <span class="text-slate-300 ml-1"><%= p.reason %></span>
+                </div>
+                <div>
+                  <% if (p.type === 'WARNING') { %>
+                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">Verwarnung</span>
+                  <% } else if (p.type === 'PENALTY_POINTS') { %>
+                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">+<%= p.penaltyPoints %> LP</span>
+                  <% } else if (p.type === 'POINT_DEDUCTION') { %>
+                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-red-500/20 text-red-300 border border-red-500/30"><%= p.points %> Pkt</span>
+                  <% } else { %>
+                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">+<%= p.points %> Pkt</span>
+                  <% } %>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        </div>
+      <% } %>
+    </div>
+
+    <!-- Right: Profil-Editor -->
+    <div class="lg:col-span-5 space-y-8">
+      
+      <!-- Profil bearbeiten -->
+      <div class="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-xl" id="profil">
+        <h3 class="text-base font-bold text-white mb-4 flex items-center gap-2">
+          <i class="fas fa-sliders text-[#DE382B]"></i> Cockpit-Setup anpassen
+        </h3>
+        
+        <form action="/driver/profile" method="POST" class="space-y-4 text-xs">
+          
+          <!-- EA-ID -->
+          <div>
+            <label class="block text-slate-400 font-mono mb-1">EA-Account Name / EA-ID <span class="text-[#DE382B]">*</span></label>
+            <input type="text" name="eaId" value="<%= driverData.user.eaId || driverData.user.gamertag || '' %>" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/80 border border-white/10 text-white focus:outline-none focus:border-white/25">
+            <p class="text-[10px] text-amber-400/80 mt-1">Zwingend erforderlich für Ingame-Einladungen via EA Friends.</p>
+          </div>
+
+          <!-- Plattform -->
+          <div>
+            <label class="block text-slate-400 font-mono mb-1">Plattform / Launcher <span class="text-[#DE382B]">*</span></label>
+            <select name="platform" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/80 border border-white/10 text-white focus:outline-none focus:border-white/25">
+              <option value="PC_STEAM" <%= (driverData.user.platform === 'PC_STEAM' || driverData.user.platform === 'PC') ? 'selected' : '' %>>PC – Steam</option>
+              <option value="PC_EA" <%= driverData.user.platform === 'PC_EA' ? 'selected' : '' %>>PC – EA App</option>
+              <option value="PC_XBOX" <%= driverData.user.platform === 'PC_XBOX' ? 'selected' : '' %>>PC – Xbox App (Game Pass)</option>
+              <option value="PC_EPIC" <%= driverData.user.platform === 'PC_EPIC' ? 'selected' : '' %>>PC – Epic Games Store</option>
+              <option value="PLAYSTATION" <%= (driverData.user.platform === 'PLAYSTATION' || driverData.user.platform === 'PS5') ? 'selected' : '' %>>PlayStation (PSN)</option>
+              <option value="XBOX" <%= driverData.user.platform === 'XBOX' ? 'selected' : '' %>>Xbox Console (Series X|S / One)</option>
+            </select>
+          </div>
+
+          <!-- Gamertag auf dieser Plattform -->
+          <div>
+            <label class="block text-slate-400 font-mono mb-1">Gamertag auf dieser Plattform <span class="text-[#DE382B]">*</span></label>
+            <input type="text" name="platformUsername" value="<%= driverData.user.platformUsername || driverData.user.gamertag || '' %>" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/80 border border-white/10 text-white focus:outline-none focus:border-white/25">
+          </div>
+
+          <!-- Startnummer -->
+          <div>
+            <label class="block text-slate-400 font-mono mb-1">Startnummer (1–99) <span class="text-[#DE382B]">*</span></label>
+            <input type="number" min="1" max="99" name="raceNumber" value="<%= driverData.user.raceNumber || '' %>" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/80 border border-white/10 text-white font-mono focus:outline-none focus:border-white/25">
+          </div>
+
+          <!-- Optionale Angaben -->
+          <div class="grid grid-cols-2 gap-2 pt-2 border-t border-white/10">
+            <div>
+              <label class="block text-slate-400 font-mono mb-1">Fahrhilfen</label>
+              <input type="text" name="assists" value="<%= driverData.user.assists || '' %>" placeholder="z. B. Keine / TC" class="w-full px-3 py-2 rounded-xl bg-slate-950/80 border border-white/10 text-white text-[11px] focus:outline-none focus:border-white/25">
+            </div>
+            <div>
+              <label class="block text-slate-400 font-mono mb-1">Erfahrung</label>
+              <input type="text" name="experience" value="<%= driverData.user.experience || '' %>" placeholder="z. B. Lenkrad / 2 J." class="w-full px-3 py-2 rounded-xl bg-slate-950/80 border border-white/10 text-white text-[11px] focus:outline-none focus:border-white/25">
+            </div>
+          </div>
+
+          <button type="submit" class="w-full py-3 rounded-xl bg-[#DE382B] hover:bg-[#C52B1F] text-white font-semibold transition-all shadow-lg hover:-translate-y-0.5 mt-2">
+            Änderungen speichern
+          </button>
+        </form>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Bisherige Rennergebnisse Tabelle -->
+  <div class="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden mb-12 shadow-2xl">
+    <div class="p-5 border-b border-white/10">
+      <h3 class="text-base font-bold text-white flex items-center gap-2">
+        <i class="fas fa-flag-checkered text-[#DE382B]"></i>
+        <span>Bisherige Rennergebnisse dieser Saison</span>
+      </h3>
+    </div>
+    
+    <% if (driverData.results.length === 0) { %>
+      <div class="p-8 text-center text-xs text-slate-400">
+        Bisher liegen noch keine gewerteten Rennergebnisse für deinen Fahrer vor.
+      </div>
+    <% } else { %>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-950/80 text-slate-400 font-mono uppercase text-[10px] border-b border-white/5">
+            <tr>
+              <th class="px-4 py-3.5">Runde</th>
+              <th class="px-4 py-3.5">Strecke</th>
+              <th class="px-4 py-3.5">Platz</th>
+              <th class="px-4 py-3.5">Team</th>
+              <th class="px-4 py-3.5">Schnellste Runde</th>
+              <th class="px-4 py-3.5">Status</th>
+              <th class="px-4 py-3.5 text-right">Punkte</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-white/5">
+            <% driverData.results.forEach((r) => { %>
+              <tr class="hover:bg-white/[0.03] transition-colors">
+                <td class="px-4 py-3 font-mono text-slate-400">R<%= r.race.roundNumber %></td>
+                <td class="px-4 py-3 font-medium text-white flex items-center gap-1.5">
+                  <span><%= r.race.flagEmoji %></span>
+                  <span><%= r.race.trackName %></span>
+                </td>
+                <td class="px-4 py-3 font-mono font-bold <%= r.position === 1 ? 'text-amber-400' : r.position <= 3 ? 'text-slate-200' : 'text-slate-400' %>">
+                  P<%= r.position %>
+                </td>
+                <td class="px-4 py-3 text-slate-300"><%= r.teamName %></td>
+                <td class="px-4 py-3 font-mono">
+                  <% if (r.fastestLap) { %>
+                    <span class="text-purple-400 font-bold">⚡ <%= r.fastestLapTime || 'FL' %> (+1 Pt)</span>
+                  <% } else { %>
+                    <span class="text-slate-400">-</span>
+                  <% } %>
+                </td>
+                <td class="px-4 py-3">
+                  <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono <%= r.status === 'FINISHED' ? 'bg-emerald-950/40 text-emerald-300 border border-emerald-500/30' : 'bg-rose-950/40 text-rose-300 border border-rose-500/30' %>">
+                    <%= r.status %>
+                  </span>
+                </td>
+                <td class="px-4 py-3 text-right font-mono font-bold text-white tabular-nums">
+                  <%= r.points %> PTS
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </div>
+
+  <!-- DSGVO Art. 17 DANGER ZONE -->
+  <div class="border border-red-500/30 bg-red-950/20 backdrop-blur-xl rounded-2xl p-6 sm:p-7 shadow-xl">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+      
+      <div>
+        <div class="flex items-center gap-2 text-red-400 font-mono text-xs font-bold uppercase tracking-wider mb-1">
+          <i class="fas fa-triangle-exclamation text-red-500"></i>
+          <span>Gefahrenzone: DSGVO Art. 17 (Recht auf Löschung)</span>
+        </div>
+        <h3 class="text-lg font-bold text-white">Account und alle Daten unwiderruflich löschen</h3>
+        <p class="text-xs text-slate-400 max-w-2xl mt-1 leading-relaxed">
+          Löscht dein Profil, Discord-Verknüpfung, Gamertags und Anmeldungen. Historische Rennergebnisse werden zur Meisterschaftsintegrität vollständig anonymisiert.
+        </p>
+      </div>
+
+      <!-- Trigger-Button für den Bestätigungs-Modal -->
+      <button 
+        type="button" 
+        onclick="document.getElementById('gdpr-modal').classList.remove('hidden')"
+        class="px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold text-xs transition-all shadow-lg hover:-translate-y-0.5 flex-shrink-0"
+      >
+        Account löschen...
+      </button>
+
+    </div>
+  </div>
+
+  <!-- DSGVO Art. 17 Bestätigungs-Modal -->
+  <div id="gdpr-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md hidden">
+    <div class="bg-slate-900 border border-red-500/40 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative">
+      
+      <div class="w-12 h-12 rounded-2xl bg-red-950/60 border border-red-500/30 flex items-center justify-center text-red-400 mb-4">
+        <i class="fas fa-trash-can text-xl"></i>
+      </div>
+
+      <h3 class="text-xl font-bold text-white mb-2">Bist du dir absolut sicher?</h3>
+      <p class="text-xs text-slate-300 leading-relaxed mb-4">
+        Dieser Vorgang kann <strong>nicht</strong> rückgängig gemacht werden. Dein Zugang wird sofort gesperrt, deine Startnummer freigegeben und deine personenbezogenen Daten unwiderruflich gelöscht.
+      </p>
+
+      <form action="/driver/delete-account" method="POST" class="space-y-4">
+        <div>
+          <label class="block text-xs font-mono text-slate-400 mb-1">
+            Zur Bestätigung tippe bitte <strong class="text-white">LÖSCHEN</strong> in das Feld ein:
+          </label>
+          <input 
+            type="text" 
+            name="confirmationText" 
+            required 
+            placeholder="LÖSCHEN" 
+            class="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-white/10 text-white focus:outline-none focus:border-red-500 font-mono text-sm uppercase"
+            oninput="document.getElementById('confirm-delete-btn').disabled = (this.value.trim().toUpperCase() !== 'LÖSCHEN')"
+          >
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
+          <button 
+            type="button" 
+            onclick="document.getElementById('gdpr-modal').classList.add('hidden')"
+            class="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-medium transition-colors"
+          >
+            Abbrechen
+          </button>
+
+          <button 
+            type="submit" 
+            id="confirm-delete-btn" 
+            disabled 
+            class="px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-bold transition-colors shadow-lg"
+          >
+            Unwiderruflich löschen (Art. 17)
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+</main>
+
+<%- include('../partials/footer') %>

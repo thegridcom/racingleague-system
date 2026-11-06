@@ -1,0 +1,203 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+<%- include('../partials/flash') %>
+
+<main class="flex-grow py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+  
+  <div class="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <div class="font-mono text-xs uppercase tracking-widest text-[#DE382B] font-semibold mb-1">
+        Schnellerfassung Rennergebnis
+      </div>
+      <h1 class="text-3xl font-display font-black tracking-tight text-white">
+        <%= race.flagEmoji %> Runde <%= race.roundNumber %>: <%= race.trackName %>
+      </h1>
+      <p class="text-sm text-slate-400 mt-1">
+        Erfasse die Platzierungen 1 bis 20. Punkte werden automatisch nach F1-Schema berechnet und an Discord gesendet.
+      </p>
+    </div>
+
+    <a href="/admin" class="text-xs text-slate-400 hover:text-white font-mono flex items-center gap-1">
+      ← Zurück zur Admin-Zentrale
+    </a>
+  </div>
+
+  <form action="/admin/races/<%= race.id %>/results" method="POST">
+    
+    <div class="bg-slate-900/60 backdrop-blur-xl border border-white/10 shadow-xl rounded-2xl overflow-hidden shadow-2xl mb-8">
+      
+      <div class="p-4 bg-slate-950/80 border-b border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <span class="text-slate-400 font-mono">
+          Tipp: Wähle den registrierten Fahrer aus. Name &amp; Team werden automatisch übernommen.
+        </span>
+
+        <button type="submit" class="px-5 py-2.5 rounded-lg bg-[#DE382B] hover:bg-[#C52B1F] text-white font-semibold text-xs transition-colors flex items-center gap-2">
+          <span>💾 Ergebnisse speichern &amp; Rangliste aktualisieren</span>
+        </button>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-950/80 text-slate-400 font-mono uppercase text-[10px]">
+            <tr>
+              <th class="px-3 py-3 text-center w-12">Pos</th>
+              <th class="px-3 py-3">Registrierter Fahrer (Auto-Fill)</th>
+              <th class="px-3 py-3">Fahrername (Anzeige)</th>
+              <th class="px-3 py-3">Team</th>
+              <th class="px-3 py-3 text-center w-16">FL (+1 Pt)</th>
+              <th class="px-3 py-3 w-28">FL Zeit</th>
+              <th class="px-3 py-3 w-28">Status</th>
+              <th class="px-3 py-3 w-20">Straf-Sek.</th>
+              <th class="px-3 py-3 w-20">Straf-Pkt.</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-white/5">
+            <% 
+              const existingMap = new Map();
+              if (race.results) {
+                race.results.forEach(r => existingMap.set(r.position, r));
+              }
+
+              for (let i = 1; i <= 20; i++) { 
+                const res = existingMap.get(i);
+            %>
+              <tr class="hover:bg-[#1A202D]/40">
+                <!-- Position -->
+                <td class="px-3 py-2.5 text-center font-mono font-bold text-sm <%= i === 1 ? 'text-amber-400' : i <= 3 ? 'text-slate-200' : 'text-slate-400' %>">
+                  P<%= i %>
+                </td>
+
+                <!-- Driver Dropdown -->
+                <td class="px-3 py-2.5">
+                  <select 
+                    name="positions[<%= i - 1 %>][userId]" 
+                    class="w-full px-2.5 py-1.5 rounded bg-slate-950/80 border border-white/10 shadow-inner text-white text-xs focus:outline-none focus:border-[#DE382B]"
+                    onchange="
+                      const sel = this.options[this.selectedIndex];
+                      const dName = sel.getAttribute('data-name');
+                      const dTeam = sel.getAttribute('data-team');
+                      if (dName) document.getElementById('dname-<%= i %>').value = dName;
+                      if (dTeam) document.getElementById('dteam-<%= i %>').value = dTeam;
+                    "
+                  >
+                    <option value="">-- Freier Fahrer / Gast --</option>
+                    <% drivers.forEach(d => { 
+                      const isSelected = res && res.userId === d.id;
+                    %>
+                      <option 
+                        value="<%= d.id %>" 
+                        data-name="<%= d.gamertag || d.discordUsername %>"
+                        data-team="<%= d.team ? d.team.name : '' %>"
+                        <%= isSelected ? 'selected' : '' %>
+                      >
+                        #<%= d.raceNumber ?? '?' %> <%= d.gamertag || d.discordUsername %> (<%= d.team?.shortCode || 'Kein Team' %>)
+                      </option>
+                    <% }) %>
+                  </select>
+                </td>
+
+                <!-- Driver Name Input -->
+                <td class="px-3 py-2.5">
+                  <input 
+                    type="text" 
+                    id="dname-<%= i %>"
+                    name="positions[<%= i - 1 %>][driverName]" 
+                    value="<%= res ? res.driverName : '' %>"
+                    placeholder="Fahrername" 
+                    class="w-full px-2.5 py-1.5 rounded bg-slate-950/80 border border-white/10 shadow-inner text-white text-xs focus:outline-none focus:border-[#DE382B]"
+                  >
+                </td>
+
+                <!-- Team Select/Input -->
+                <td class="px-3 py-2.5">
+                  <input 
+                    type="text" 
+                    id="dteam-<%= i %>"
+                    name="positions[<%= i - 1 %>][teamName]" 
+                    value="<%= res ? res.teamName : '' %>"
+                    placeholder="Team" 
+                    list="teams-datalist"
+                    class="w-full px-2.5 py-1.5 rounded bg-slate-950/80 border border-white/10 shadow-inner text-white text-xs focus:outline-none focus:border-[#DE382B]"
+                  >
+                </td>
+
+                <!-- Fastest Lap Radio -->
+                <td class="px-3 py-2.5 text-center">
+                  <input 
+                    type="radio" 
+                    name="fastestLapPosition" 
+                    value="<%= i %>" 
+                    class="w-4 h-4 text-[#DE382B] focus:ring-0 bg-slate-950/80 border-neutral-700 cursor-pointer"
+                    <%= res && res.fastestLap ? 'checked' : '' %>
+                  >
+                </td>
+
+                <!-- FL Zeit -->
+                <td class="px-3 py-2.5">
+                  <input 
+                    type="text" 
+                    name="positions[<%= i - 1 %>][fastestLapTime]" 
+                    value="<%= res ? res.fastestLapTime || '' : '' %>"
+                    placeholder="1:31.450" 
+                    class="w-full px-2 py-1.5 rounded bg-slate-950/80 border border-white/10 shadow-inner text-white font-mono text-[11px] focus:outline-none focus:border-[#DE382B]"
+                  >
+                </td>
+
+                <!-- Status -->
+                <td class="px-3 py-2.5">
+                  <select name="positions[<%= i - 1 %>][status]" class="w-full px-2 py-1.5 rounded bg-slate-950/80 border border-white/10 shadow-inner text-white text-[11px] focus:outline-none">
+                    <option value="FINISHED" <%= (!res || res.status === 'FINISHED') ? 'selected' : '' %>>FINISHED</option>
+                    <option value="DNF" <%= (res && res.status === 'DNF') ? 'selected' : '' %>>DNF</option>
+                    <option value="DSQ" <%= (res && res.status === 'DSQ') ? 'selected' : '' %>>DSQ</option>
+                    <option value="DNS" <%= (res && res.status === 'DNS') ? 'selected' : '' %>>DNS</option>
+                  </select>
+                </td>
+
+                <!-- Straf-Sekunden -->
+                <td class="px-3 py-2.5">
+                  <input 
+                    type="number" 
+                    name="positions[<%= i - 1 %>][penaltySeconds]" 
+                    value="<%= res ? res.penaltySeconds : 0 %>"
+                    min="0"
+                    class="w-full px-2 py-1.5 rounded bg-slate-950/80 border border-white/10 shadow-inner text-white font-mono text-[11px] focus:outline-none"
+                  >
+                </td>
+
+                <!-- Straf-Punkte -->
+                <td class="px-3 py-2.5">
+                  <input 
+                    type="number" 
+                    name="positions[<%= i - 1 %>][penaltyPoints]" 
+                    value="<%= res ? res.penaltyPoints : 0 %>"
+                    min="0"
+                    class="w-full px-2 py-1.5 rounded bg-slate-950/80 border border-white/10 shadow-inner text-white font-mono text-[11px] focus:outline-none"
+                  >
+                </td>
+
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+
+      <datalist id="teams-datalist">
+        <% teams.forEach(t => { %>
+          <option value="<%= t.name %>"></option>
+        <% }) %>
+      </datalist>
+
+      <div class="p-4 bg-slate-950/80 border-t border-white/10 flex justify-end">
+        <button type="submit" class="px-6 py-3 rounded-lg bg-[#DE382B] hover:bg-[#C52B1F] text-white font-semibold text-xs transition-colors shadow-lg shadow-red-950/40">
+          💾 Rennergebnisse speichern &amp; Tabelle neu berechnen
+        </button>
+      </div>
+
+    </div>
+
+  </form>
+
+</main>
+
+<%- include('../partials/footer') %>
+

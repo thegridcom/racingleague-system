@@ -1,0 +1,197 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+<%- include('../partials/flash') %>
+
+<main class="flex-grow py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+  
+  <div class="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <div class="font-mono text-xs uppercase tracking-widest text-[#DE382B] font-semibold mb-1">
+        Rennleitung &amp; Stewarding
+      </div>
+      <h1 class="text-3xl font-display font-black tracking-tight text-white">Strafenkatalog &amp; Punkte-Anpassung</h1>
+      <p class="text-sm text-slate-400 mt-1">
+        Verwalte Verwarnungen, Lizenz-Strafpunkte sowie manuelle WM-Punkte-Abzüge oder -Gutschriften.
+      </p>
+    </div>
+
+    <a href="/admin" class="text-xs text-slate-400 hover:text-white font-mono flex items-center gap-1">
+      ← Zurück zur Admin-Zentrale
+    </a>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12">
+    
+    <!-- Left: Neue Entscheidung eintragen -->
+    <div class="lg:col-span-5 space-y-6">
+      <div class="bg-slate-900/60 backdrop-blur-xl border border-white/10 shadow-xl rounded-2xl p-6">
+        <h3 class="text-base font-display font-bold text-white mb-4">Entscheidung eintragen</h3>
+        
+        <form action="/admin/stewarding/issue" method="POST" class="space-y-4 text-xs">
+          
+          <!-- Fahrer Auswahl -->
+          <div>
+            <label class="block text-slate-400 font-mono mb-1">Betroffener Fahrer <span class="text-[#DE382B]">*</span></label>
+            <select name="userId" required class="w-full px-3 py-2.5 rounded bg-slate-950/80 border border-white/10 shadow-inner text-white focus:outline-none focus:border-[#DE382B]">
+              <option value="">-- Fahrer auswählen --</option>
+              <% drivers.forEach(d => { %>
+                <option value="<%= d.id %>">
+                  #<%= d.raceNumber ?? '?' %> <%= d.gamertag || d.discordUsername %> (<%= d.team?.shortCode || 'Privat' %>)
+                </option>
+              <% }) %>
+            </select>
+          </div>
+
+          <!-- Saison Auswahl -->
+          <div>
+            <label class="block text-slate-400 font-mono mb-1">Meisterschafts-Saison</label>
+            <select name="seasonId" class="w-full px-3 py-2 rounded bg-slate-950/80 border border-white/10 shadow-inner text-white focus:outline-none focus:border-[#DE382B]">
+              <% seasons.forEach(s => { %>
+                <option value="<%= s.id %>" <%= (typeof activeSeason !== 'undefined' && activeSeason && activeSeason.id === s.id) ? 'selected' : '' %>>
+                  <%= s.name %> (<%= s.status %>)
+                </option>
+              <% }) %>
+            </select>
+          </div>
+
+          <!-- Typ der Entscheidung -->
+          <div>
+            <label class="block text-slate-400 font-mono mb-1.5">Art der Maßnahme <span class="text-[#DE382B]">*</span></label>
+            <div class="grid grid-cols-2 gap-2">
+              <label class="cursor-pointer">
+                <input type="radio" name="type" value="WARNING" checked class="peer sr-only">
+                <div class="p-2.5 rounded bg-slate-950/80 border border-white/10 shadow-inner peer-checked:border-amber-500 peer-checked:bg-amber-500/10 text-slate-300 peer-checked:text-amber-300 transition-all text-center font-medium">
+                  🟡 Verwarnung
+                </div>
+              </label>
+
+              <label class="cursor-pointer">
+                <input type="radio" name="type" value="PENALTY_POINTS" class="peer sr-only">
+                <div class="p-2.5 rounded bg-slate-950/80 border border-white/10 shadow-inner peer-checked:border-rose-500 peer-checked:bg-rose-500/10 text-slate-300 peer-checked:text-rose-300 transition-all text-center font-medium">
+                  🔴 Strafpunkte (LP)
+                </div>
+              </label>
+
+              <label class="cursor-pointer">
+                <input type="radio" name="type" value="POINT_DEDUCTION" class="peer sr-only">
+                <div class="p-2.5 rounded bg-slate-950/80 border border-white/10 shadow-inner peer-checked:border-red-500 peer-checked:bg-red-500/10 text-slate-300 peer-checked:text-red-300 transition-all text-center font-medium">
+                  📉 Punkte-Abzug (WM)
+                </div>
+              </label>
+
+              <label class="cursor-pointer">
+                <input type="radio" name="type" value="POINT_ADDITION" class="peer sr-only">
+                <div class="p-2.5 rounded bg-slate-950/80 border border-white/10 shadow-inner peer-checked:border-emerald-500 peer-checked:bg-emerald-500/10 text-slate-300 peer-checked:text-emerald-300 transition-all text-center font-medium">
+                  📈 Punkte-Gutschrift
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Anzahl / Wert -->
+          <div>
+            <label class="block text-slate-400 font-mono mb-1">Anzahl Punkte / Strafpunkte (bei Abzug/Gutschrift/LP)</label>
+            <input type="number" step="1" min="0" max="50" name="amount" value="1" placeholder="1" class="w-full px-3 py-2 rounded bg-slate-950/80 border border-white/10 shadow-inner text-white font-mono focus:outline-none focus:border-[#DE382B]">
+            <p class="text-[10px] text-neutral-500 mt-1">Bei Verwarnungen wird dieser Wert ignoriert (0 Punkte).</p>
+          </div>
+
+          <!-- Begründung -->
+          <div>
+            <label class="block text-slate-400 font-mono mb-1">Offizielle Begründung / Vorfall <span class="text-[#DE382B]">*</span></label>
+            <textarea name="reason" rows="3" required placeholder="z. B. Kollision Kurve 4 Runde 12 oder Unentschuldigtes Fehlen beim Hauptrennen" class="w-full px-3 py-2 rounded bg-slate-950/80 border border-white/10 shadow-inner text-white placeholder-neutral-600 focus:outline-none focus:border-[#DE382B]"></textarea>
+          </div>
+
+          <!-- Steward Name -->
+          <div>
+            <label class="block text-slate-400 font-mono mb-1">Aussprechender Steward</label>
+            <input type="text" name="stewardName" value="<%= locals.user ? locals.user.discordUsername : 'Rennleitung' %>" class="w-full px-3 py-2 rounded bg-slate-950/80 border border-white/10 shadow-inner text-white focus:outline-none focus:border-[#DE382B]">
+          </div>
+
+          <button type="submit" class="w-full py-2.5 rounded bg-[#DE382B] hover:bg-[#C52B1F] text-white font-semibold transition-colors">
+            Entscheidung vollstrecken &amp; speichern
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Right: Liste aller Entscheidungen -->
+    <div class="lg:col-span-7 space-y-6">
+      <div class="flex items-center justify-between">
+        <h3 class="text-base font-display font-bold text-white">Protokoll aller Entscheidungen (<%= penalties.length %>)</h3>
+      </div>
+
+      <% if (penalties.length === 0) { %>
+        <div class="bg-slate-900/60 backdrop-blur-xl border border-white/10 shadow-xl rounded-2xl p-8 text-center text-xs text-slate-400">
+          Keine offenen Strafen oder Verwarnungen dokumentiert. Sauberes Fahrerfeld!
+        </div>
+      <% } else { %>
+        <div class="space-y-3">
+          <% penalties.forEach(p => { 
+            const isWarning = p.type === 'WARNING';
+            const isPointsDeduction = p.type === 'POINT_DEDUCTION';
+            const isPointsAddition = p.type === 'POINT_ADDITION';
+            const isPenaltyPoints = p.type === 'PENALTY_POINTS';
+          %>
+            <div class="bg-slate-900/60 backdrop-blur-xl border border-white/10 shadow-xl rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <div class="flex items-center gap-2 mb-1 flex-wrap">
+                  <span class="font-bold text-white text-sm">
+                    #<%= p.user.raceNumber ?? '?' %> <%= p.user.gamertag || p.user.discordUsername %>
+                  </span>
+                  
+                  <% if (p.user.team) { %>
+                    <span class="text-[10px] font-mono font-medium px-2 py-0.5 rounded bg-slate-950/80 text-slate-300">
+                      <%= p.user.team.shortCode %>
+                    </span>
+                  <% } %>
+
+                  <!-- Badge -->
+                  <% if (isWarning) { %>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                      Verwarnung
+                    </span>
+                  <% } else if (isPenaltyPoints) { %>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                      +<%= p.penaltyPoints %> Strafpunkte
+                    </span>
+                  <% } else if (isPointsDeduction) { %>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-red-500/20 text-red-400 border border-red-500/30">
+                      <%= p.points %> WM-Punkte
+                    </span>
+                  <% } else if (isPointsAddition) { %>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                      +<%= p.points %> WM-Punkte
+                    </span>
+                  <% } %>
+                </div>
+
+                <p class="text-xs text-slate-300 mb-1">
+                  <%= p.reason %>
+                </p>
+
+                <div class="text-[10px] text-neutral-500 font-mono flex items-center gap-2">
+                  <span>Steward: <%= p.stewardName %></span>
+                  <span>•</span>
+                  <span><%= new Date(p.createdAt).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) %> Uhr</span>
+                </div>
+              </div>
+
+              <!-- Delete Button -->
+              <form action="/admin/stewarding/delete" method="POST" onsubmit="return confirm('Möchtest du diese Entscheidung wirklich aufheben und aus dem Protokoll entfernen?')">
+                <input type="hidden" name="penaltyId" value="<%= p.id %>">
+                <button type="submit" class="px-3 py-1.5 rounded bg-red-950/30 hover:bg-red-900/40 border border-red-500/30 text-red-400 text-xs font-mono transition-colors">
+                  Zurücknehmen
+                </button>
+              </form>
+            </div>
+          <% }) %>
+        </div>
+      <% } %>
+    </div>
+
+  </div>
+
+</main>
+
+<%- include('../partials/footer') %>
+

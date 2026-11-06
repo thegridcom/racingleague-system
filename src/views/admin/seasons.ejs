@@ -1,0 +1,457 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+<%- include('../partials/flash') %>
+
+<%
+  // Nächsten Sonntag 19:00 Uhr für das Startdatum vorbereiten
+  const now = new Date();
+  const day = now.getDay();
+  let daysUntilSun = (7 - day) % 7;
+  if (daysUntilSun === 0 && now.getHours() >= 19) daysUntilSun = 7;
+  const defaultNextSunday = new Date(now.getTime() + daysUntilSun * 24 * 60 * 60 * 1000);
+  defaultNextSunday.setHours(19, 0, 0, 0);
+  const defaultDateStr = defaultNextSunday.toISOString().slice(0, 16);
+%>
+
+<main class="flex-grow py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+  
+  <div class="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <div class="font-mono text-xs uppercase tracking-widest text-[#DE382B] font-semibold mb-1">
+        Meisterschafts-Setup
+      </div>
+      <h1 class="text-3xl font-display font-black tracking-tight text-white">Saison- &amp; Kalender-Verwaltung</h1>
+      <p class="text-sm text-slate-400 mt-1">
+        Starte neue Meisterschaften mit ausgewählten Rennstrecken oder pflege einzelne Grand-Prix-Events.
+      </p>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <a href="/admin/stewarding" class="text-xs text-amber-400 hover:text-amber-300 font-mono flex items-center gap-1 border border-amber-500/30 px-3 py-1.5 rounded bg-amber-500/10">
+        ⚖️ Zum Strafenkatalog
+      </a>
+      <a href="/admin" class="text-xs text-slate-400 hover:text-white font-mono flex items-center gap-1">
+        ← Admin-Zentrale
+      </a>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12">
+    
+    <!-- Left: Saison mit Strecken anlegen & starten -->
+    <div class="lg:col-span-5 space-y-6">
+      <div class="bg-slate-900/60 backdrop-blur-xl border border-white/10 shadow-xl rounded-2xl p-6">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-base font-display font-bold text-white">Saison anlegen &amp; starten</h3>
+          <span class="px-2 py-0.5 rounded bg-red-950/40 border border-red-500/30 text-[10px] font-mono text-red-300 font-semibold">50% Format</span>
+        </div>
+        <p class="text-xs text-slate-400 mb-4">
+          Wähle den Namen und die gewünschten Strecken. Alle Runden und Termine werden vollautomatisch generiert.
+        </p>
+
+        <form action="/admin/seasons/create-with-tracks" method="POST" class="space-y-4 text-xs">
+          <div>
+            <label class="block text-slate-400 font-mono mb-1">Name der Meisterschaft <span class="text-[#DE382B]">*</span></label>
+            <input type="text" name="name" required placeholder="z. B. Formel 1 Meisterschaft 2026 - Season 1" class="w-full px-3 py-2.5 rounded bg-slate-950/80 border border-white/10 shadow-inner text-white focus:outline-none focus:border-[#DE382B]">
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-slate-400 font-mono mb-1">Saison-Jahr</label>
+              <input type="number" name="year" value="2026" required class="w-full px-3 py-2 rounded bg-slate-950/80 border border-white/10 shadow-inner text-white font-mono focus:outline-none focus:border-[#DE382B]">
+            </div>
+            <div>
+              <label class="block text-slate-400 font-mono mb-1">Initialer Status</label>
+              <select name="status" class="w-full px-3 py-2 rounded bg-slate-950/80 border border-white/10 shadow-inner text-white focus:outline-none focus:border-[#DE382B]">
+                <option value="ACTIVE" selected>Aktiv (Sofort starten)</option>
+                <option value="UPCOMING">Upcoming (Vorbereitung)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-slate-400 font-mono mb-1">Start Runde 1</label>
+              <input type="datetime-local" name="firstRaceDate" value="<%= defaultDateStr %>" required class="w-full px-3 py-2 rounded bg-slate-950/80 border border-white/10 shadow-inner text-white font-mono focus:outline-none focus:border-[#DE382B]">
+            </div>
+            <div>
+              <label class="block text-slate-400 font-mono mb-1">Rennintervall</label>
+              <select name="intervalDays" class="w-full px-3 py-2 rounded bg-slate-950/80 border border-white/10 shadow-inner text-white focus:outline-none focus:border-[#DE382B]">
+                <option value="14" selected>Alle 14 Tage (Bi-Weekly)</option>
+                <option value="7">Wöchentlich (Weekly)</option>
+                <option value="21">Alle 3 Wochen</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Rennstrecken-Auswahl -->
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <label class="text-slate-400 font-mono">Strecken für diese Saison auswählen:</label>
+              <div class="space-x-2">
+                <button type="button" onclick="document.querySelectorAll('.track-checkbox').forEach(c => c.checked = true)" class="text-[10px] text-slate-400 hover:text-white font-mono underline">Alle</button>
+                <button type="button" onclick="document.querySelectorAll('.track-checkbox').forEach(c => c.checked = false)" class="text-[10px] text-slate-400 hover:text-white font-mono underline">Keine</button>
+              </div>
+            </div>
+
+            <div class="max-h-56 overflow-y-auto space-y-1.5 p-2 bg-slate-950/80 border border-white/10 shadow-inner rounded-lg">
+              <% (typeof tracks2026 !== 'undefined' ? tracks2026 : []).forEach((t) => { %>
+                <label class="flex items-center justify-between p-2 rounded hover:bg-slate-900/70 cursor-pointer transition-colors text-[11px]">
+                  <div class="flex items-center gap-2">
+                    <input type="checkbox" name="tracks" value="<%= t.roundNumber %>" checked class="track-checkbox rounded border-neutral-700 bg-neutral-900 text-[#DE382B] focus:ring-0">
+                    <span class="text-sm"><%= t.flagEmoji %></span>
+                    <span class="text-white font-medium"><%= t.trackName %></span>
+                  </div>
+                  <span class="font-mono text-[10px] text-slate-400"><%= t.laps %> Runden (50%)</span>
+                </label>
+              <% }) %>
+            </div>
+          </div>
+
+          <button type="submit" class="w-full py-2.5 rounded bg-[#DE382B] hover:bg-[#C52B1F] text-white font-semibold transition-colors flex items-center justify-center gap-2">
+            <span>🏁 Saison mit Streckenkalender starten</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Manuelles Einzelrennen hinzufügen (Optional) -->
+      <details class="bg-slate-900/60 backdrop-blur-xl border border-white/10 shadow-xl rounded-2xl p-5 text-xs">
+        <summary class="font-display font-bold text-white cursor-pointer select-none">
+          + Einzelnes Custom-Rennen hinzufügen
+        </summary>
+        
+        <form action="/admin/races/add" method="POST" class="space-y-3 mt-4">
+          <!-- Preset-Auswahl aus allen 2026 Strecken -->
+          <div>
+            <label class="block text-slate-400 font-mono mb-1">🏁 Vorkonfigurierte 2026-Strecke wählen (Autofill)</label>
+            <select onchange="applyTrackPreset(this)" class="w-full px-3 py-2 rounded bg-slate-950/80 border border-white/10 shadow-inner text-white text-xs focus:outline-none focus:border-[#DE382B]">
+              <option value="">-- Manuell eingeben oder aus 2026 Kalender wählen --</option>
+              <% (typeof tracks2026 !== 'undefined' ? tracks2026 : []).forEach(t => { %>
+                <option value="<%= t.roundNumber %>" 
+                  data-name="<%= t.trackName %>" 
+                  data-country="<%= t.country %>" 
+                  data-flag="<%= t.flagEmoji %>" 
+                  data-length="<%= t.lengthKm %>" 
+                  data-laps="<%= t.laps %>"
+                  data-svg="<%= t.svgPath %>">
+                  <%= t.flagEmoji %> <%= t.trackName %> (<%= t.laps %> Runden · <%= t.country %>)
+                </option>
+              <% }) %>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-slate-400 font-mono mb-1">Ziel-Saison</label>
+            <select name="seasonId" required class="w-full px-3 py-2 rounded bg-slate-950/80 border border-white/10 shadow-inner text-white focus:outline-none focus:border-[#DE382B]">
+              <% seasons.forEach(s => { %>
+                <option value="<%= s.id %>"><%= s.name %> (<%= s.status %>)</option>
+              <% }) %>
+            </select>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-slate-400 font-mono mb-1">Rundennummer</label>
+              <input type="number" name="roundNumber" min="1" value="1" required class="w-full px-3 py-2 rounded bg-slate-950/80 border border-white/10 shadow-inner text-white font-mono focus:outline-none focus:border-[#DE382B]">
+            </div>
+            <div>
+              <label class="block text-slate-400 font-mono mb-1">Flaggen-Emoji</label>
+              <input type="text" name="flagEmoji" value="🏁" required class="w-full px-3 py-2 rounded bg-slate-950/80 border border-white/10 shadow-inner text-white text-center focus:outline-none focus:border-[#DE382B]">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-slate-400 font-mono mb-1">Streckenname</label>
+            <input type="text" name="trackName" required placeholder="z. B. Nürburgring GP" class="w-full px-3 py-2 rounded bg-slate-950/80 border border-white/10 shadow-inner text-white focus:outline-none focus:border-[#DE382B]">
+          </div>
+
+          <div>
+            <label class="block text-slate-400 font-mono mb-1">Land</label>
+            <input type="text" name="country" required placeholder="z. B. Deutschland" class="w-full px-3 py-2 rounded bg-slate-950/80 border border-white/10 shadow-inner text-white focus:outline-none focus:border-[#DE382B]">
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-slate-400 font-mono mb-1">Länge (km)</label>
+              <input type="number" step="0.001" name="lengthKm" placeholder="5.148" class="w-full px-3 py-2 rounded bg-slate-950/80 border border-white/10 shadow-inner text-white font-mono focus:outline-none focus:border-[#DE382B]">
+            </div>
+            <div>
+              <label class="block text-slate-400 font-mono mb-1">Rundenzahl (50% Distanz)</label>
+              <input type="number" name="laps" placeholder="30" class="w-full px-3 py-2 rounded bg-slate-950/80 border border-white/10 shadow-inner text-white font-mono focus:outline-none focus:border-[#DE382B]">
+            </div>
+          </div>
+
+          <!-- Hidden input for trackLayoutSvg -->
+          <input type="hidden" name="trackLayoutSvg" value="">
+
+          <div>
+            <label class="block text-slate-400 font-mono mb-1">Datum &amp; Startzeit</label>
+            <input type="datetime-local" name="date" required class="w-full px-3 py-2 rounded bg-slate-950/80 border border-white/10 shadow-inner text-white focus:outline-none focus:border-[#DE382B]">
+          </div>
+
+          <button type="submit" class="w-full py-2 rounded bg-[#DE382B] hover:bg-[#C52B1F] text-white font-semibold transition-colors">
+            Rennen hinzufügen
+          </button>
+        </form>
+      </details>
+    </div>
+
+    <!-- Right: Liste aller Saisons und Rennen -->
+    <div class="lg:col-span-8 space-y-6">
+      <h3 class="text-base font-display font-bold text-white">Existierende Meisterschaften (<%= seasons.length %>)</h3>
+
+      <% if (seasons.length === 0) { %>
+        <div class="bg-slate-900/60 backdrop-blur-xl border border-white/10 shadow-xl rounded-2xl p-8 text-center text-xs text-slate-400">
+          Noch keine Saisons angelegt. Nutze das Formular links, um die Meisterschaft zu starten!
+        </div>
+      <% } else { %>
+        <% seasons.forEach((s) => { %>
+          <div class="bg-slate-900/60 backdrop-blur-xl border border-white/10 shadow-xl rounded-2xl overflow-hidden mb-6">
+            
+            <!-- Season Header & Status Controls -->
+            <div class="p-5 border-b border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#11151D]">
+              <div>
+                <div class="flex items-center gap-2 mb-1">
+                  <h4 class="text-base font-bold text-white"><%= s.name %></h4>
+                  <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase
+                    <%= s.status === 'ACTIVE' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
+                        s.status === 'PAUSED' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' :
+                        s.status === 'COMPLETED' ? 'bg-neutral-800 text-slate-400' : 'bg-cyan-500/20 text-cyan-400' %>">
+                    <%= s.status %>
+                  </span>
+                </div>
+                <div class="text-xs text-slate-400 font-mono">
+                  Jahr: <%= s.year %> · <%= s.races.length %> Rennen im Kalender (50% Distanz)
+                </div>
+              </div>
+
+              <!-- Status Switcher & Delete -->
+              <div class="flex items-center gap-2 flex-wrap">
+                <form action="/admin/seasons/status" method="POST" class="inline">
+                  <input type="hidden" name="seasonId" value="<%= s.id %>">
+                  <select name="status" onchange="this.form.submit()" class="px-2.5 py-1 rounded bg-slate-950/80 border border-white/10 shadow-inner text-xs text-white">
+                    <option value="UPCOMING" <%= s.status === 'UPCOMING' ? 'selected' : '' %>>Vorbereitung (Upcoming)</option>
+                    <option value="ACTIVE" <%= s.status === 'ACTIVE' ? 'selected' : '' %>>Aktiv (Laufend)</option>
+                    <option value="PAUSED" <%= s.status === 'PAUSED' ? 'selected' : '' %>>Pausiert</option>
+                    <option value="COMPLETED" <%= s.status === 'COMPLETED' ? 'selected' : '' %>>Beendet (Archiv)</option>
+                  </select>
+                </form>
+
+                <form action="/admin/seasons/delete" method="POST" class="inline" onsubmit="return confirm('Möchtest du diese Saison samt aller Rennen wirklich löschen?')">
+                  <input type="hidden" name="seasonId" value="<%= s.id %>">
+                  <button type="submit" class="px-2.5 py-1 rounded bg-red-950/40 border border-red-500/30 text-red-400 hover:bg-red-900/40 text-xs">
+                    Löschen
+                  </button>
+                </form>
+              </div>
+            </div>
+
+            <!-- Races List for this season -->
+            <% if (s.races.length === 0) { %>
+              <div class="p-6 text-center text-xs text-slate-400">
+                Noch keine Rennen für diese Saison eingetragen.
+              </div>
+            <% } else { %>
+              <div class="divide-y divide-[#1F2532]">
+                <% s.races.forEach((race) => { %>
+                  <div class="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-[#1A1F29]/50 transition-colors text-xs">
+                    <div class="flex items-center gap-3">
+                      <span class="font-mono text-slate-400 font-bold w-6 text-right">R<%= race.roundNumber %></span>
+                      <span class="text-base"><%= race.flagEmoji %></span>
+                      <div>
+                        <span class="font-semibold text-white"><%= race.trackName %></span>
+                        <div class="text-[11px] text-slate-400 font-mono">
+                          <%= race.country %> · <%= race.laps ? race.laps + ' Runden (50%)' : '' %> · <%= new Date(race.date).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) %> Uhr
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center gap-1.5 self-end sm:self-center flex-wrap">
+                      <!-- Move Up / Down -->
+                      <form action="/admin/races/move-up" method="POST" class="inline">
+                        <input type="hidden" name="raceId" value="<%= race.id %>">
+                        <button type="submit" title="Eine Position nach oben" class="w-7 h-7 rounded bg-slate-950/80 border border-white/10 shadow-inner hover:border-neutral-500 text-slate-300 hover:text-white flex items-center justify-center font-mono text-xs transition-colors">
+                          ↑
+                        </button>
+                      </form>
+                      <form action="/admin/races/move-down" method="POST" class="inline">
+                        <input type="hidden" name="raceId" value="<%= race.id %>">
+                        <button type="submit" title="Eine Position nach unten" class="w-7 h-7 rounded bg-slate-950/80 border border-white/10 shadow-inner hover:border-neutral-500 text-slate-300 hover:text-white flex items-center justify-center font-mono text-xs transition-colors">
+                          ↓
+                        </button>
+                      </form>
+
+                      <!-- Edit Button -->
+                      <button 
+                        type="button" 
+                        data-id="<%= race.id %>"
+                        data-name="<%= race.trackName %>"
+                        data-country="<%= race.country %>"
+                        data-flag="<%= race.flagEmoji %>"
+                        data-date="<%= new Date(race.date).toISOString().slice(0, 16) %>"
+                        data-laps="<%= race.laps || '' %>"
+                        data-length="<%= race.lengthKm || '' %>"
+                        data-status="<%= race.status %>"
+                        onclick="openEditRaceModalFromBtn(this)" 
+                        class="px-2.5 py-1 rounded bg-slate-950/80 border border-white/10 shadow-inner hover:border-neutral-500 text-slate-300 hover:text-white font-mono text-[11px] transition-colors"
+                      >
+                        Bearbeiten
+                      </button>
+
+                      <a href="/admin/races/<%= race.id %>/results" class="px-2.5 py-1 rounded bg-neutral-800 hover:bg-neutral-700 text-white font-mono text-[11px] transition-colors">
+                        Ergebnisse
+                      </a>
+
+                      <form action="/admin/races/delete" method="POST" class="inline" onsubmit="return confirm('Rennen wirklich aus dem Kalender entfernen?')">
+                        <input type="hidden" name="raceId" value="<%= race.id %>">
+                        <button type="submit" class="px-2.5 py-1 rounded bg-red-950/30 hover:bg-red-900/40 text-red-400 font-mono text-[11px]">
+                          ×
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                <% }) %>
+              </div>
+            <% } %>
+
+          </div>
+        <% }) %>
+      <% } %>
+    </div>
+
+  </div>
+
+  <!-- Edit Race Modal -->
+  <div id="edit-race-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden">
+    <div class="bg-slate-900/60 backdrop-blur-xl border border-white/10 shadow-xl rounded-2xl max-w-lg w-full p-6 sm:p-7 shadow-2xl relative text-xs">
+      <div class="flex items-center justify-between mb-4 border-b border-white/10 pb-3">
+        <h3 class="text-base font-display font-bold text-white">Rennen &amp; Termin bearbeiten</h3>
+        <button type="button" onclick="document.getElementById('edit-race-modal').classList.add('hidden')" class="text-slate-400 hover:text-white text-lg font-mono">&times;</button>
+      </div>
+      
+      <form action="/admin/races/edit" method="POST" class="space-y-4">
+        <input type="hidden" name="raceId" id="edit-race-id">
+        
+        <!-- Preset-Auswahl im Edit-Modal -->
+        <div>
+          <label class="block text-slate-400 font-mono mb-1">🏁 Strecke auf 2026-Kalender anpassen (optional)</label>
+          <select onchange="applyEditTrackPreset(this)" class="w-full px-3 py-2 rounded bg-slate-950/80 border border-white/10 shadow-inner text-white text-xs focus:outline-none focus:border-[#DE382B]">
+            <option value="">-- Auf eine 2026er Strecke anpassen --</option>
+            <% (typeof tracks2026 !== 'undefined' ? tracks2026 : []).forEach(t => { %>
+              <option value="<%= t.roundNumber %>" 
+                data-name="<%= t.trackName %>" 
+                data-country="<%= t.country %>" 
+                data-flag="<%= t.flagEmoji %>" 
+                data-length="<%= t.lengthKm %>" 
+                data-laps="<%= t.laps %>">
+                <%= t.flagEmoji %> <%= t.trackName %> (<%= t.laps %> Runden · <%= t.country %>)
+              </option>
+            <% }) %>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-4 gap-2">
+          <div class="col-span-1">
+            <label class="block text-slate-400 font-mono mb-1">Flagge</label>
+            <input type="text" name="flagEmoji" id="edit-race-flag" required class="w-full px-3 py-2 rounded bg-slate-950/80 border border-white/10 shadow-inner text-white text-center text-sm focus:outline-none focus:border-[#DE382B]">
+          </div>
+          <div class="col-span-3">
+            <label class="block text-slate-400 font-mono mb-1">Streckenname</label>
+            <input type="text" name="trackName" id="edit-race-name" required class="w-full px-3 py-2 rounded bg-slate-950/80 border border-white/10 shadow-inner text-white focus:outline-none focus:border-[#DE382B]">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-slate-400 font-mono mb-1">Land</label>
+          <input type="text" name="country" id="edit-race-country" required class="w-full px-3 py-2 rounded bg-slate-950/80 border border-white/10 shadow-inner text-white focus:outline-none focus:border-[#DE382B]">
+        </div>
+
+        <div>
+          <label class="block text-slate-400 font-mono mb-1">Renntermin &amp; Startzeit</label>
+          <input type="datetime-local" name="date" id="edit-race-date" required class="w-full px-3 py-2 rounded bg-slate-950/80 border border-white/10 shadow-inner text-white font-mono focus:outline-none focus:border-[#DE382B]">
+        </div>
+
+        <div class="grid grid-cols-3 gap-2">
+          <div>
+            <label class="block text-slate-400 font-mono mb-1">Runden (50%)</label>
+            <input type="number" name="laps" id="edit-race-laps" class="w-full px-2.5 py-2 rounded bg-slate-950/80 border border-white/10 shadow-inner text-white font-mono focus:outline-none focus:border-[#DE382B]">
+          </div>
+          <div>
+            <label class="block text-slate-400 font-mono mb-1">Länge (km)</label>
+            <input type="number" step="0.001" name="lengthKm" id="edit-race-length" class="w-full px-2.5 py-2 rounded bg-slate-950/80 border border-white/10 shadow-inner text-white font-mono focus:outline-none focus:border-[#DE382B]">
+          </div>
+          <div>
+            <label class="block text-slate-400 font-mono mb-1">Status</label>
+            <select name="status" id="edit-race-status" class="w-full px-2 py-2 rounded bg-slate-950/80 border border-white/10 shadow-inner text-white text-[11px] focus:outline-none focus:border-[#DE382B]">
+              <option value="UPCOMING">Upcoming</option>
+              <option value="ACTIVE">Aktiv</option>
+              <option value="COMPLETED">Beendet</option>
+              <option value="CANCELLED">Abgesagt</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-3 border-t border-white/10">
+          <button type="button" onclick="document.getElementById('edit-race-modal').classList.add('hidden')" class="px-4 py-2 rounded bg-neutral-800 hover:bg-neutral-700 text-slate-300 font-medium transition-colors">
+            Abbrechen
+          </button>
+          <button type="submit" class="px-5 py-2 rounded bg-[#DE382B] hover:bg-[#C52B1F] text-white font-semibold transition-colors">
+            Speichern
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function applyTrackPreset(sel) {
+      const opt = sel.options[sel.selectedIndex];
+      if (!opt || !opt.dataset.name) return;
+      const form = sel.closest('form');
+      form.querySelector('input[name="trackName"]').value = opt.dataset.name;
+      form.querySelector('input[name="country"]').value = opt.dataset.country;
+      form.querySelector('input[name="flagEmoji"]').value = opt.dataset.flag;
+      form.querySelector('input[name="lengthKm"]').value = opt.dataset.length;
+      form.querySelector('input[name="laps"]').value = opt.dataset.laps;
+      const svgInput = form.querySelector('input[name="trackLayoutSvg"]');
+      if (svgInput && opt.dataset.svg) svgInput.value = opt.dataset.svg;
+    }
+
+    function applyEditTrackPreset(sel) {
+      const opt = sel.options[sel.selectedIndex];
+      if (!opt || !opt.dataset.name) return;
+      document.getElementById('edit-race-name').value = opt.dataset.name;
+      document.getElementById('edit-race-country').value = opt.dataset.country;
+      document.getElementById('edit-race-flag').value = opt.dataset.flag;
+      document.getElementById('edit-race-length').value = opt.dataset.length;
+      document.getElementById('edit-race-laps').value = opt.dataset.laps;
+    }
+
+    function openEditRaceModalFromBtn(btn) {
+      document.getElementById('edit-race-id').value = btn.dataset.id || '';
+      document.getElementById('edit-race-name').value = btn.dataset.name || '';
+      document.getElementById('edit-race-country').value = btn.dataset.country || '';
+      document.getElementById('edit-race-flag').value = btn.dataset.flag || '';
+      document.getElementById('edit-race-date').value = btn.dataset.date || '';
+      document.getElementById('edit-race-laps').value = btn.dataset.laps || '';
+      document.getElementById('edit-race-length').value = btn.dataset.length || '';
+      document.getElementById('edit-race-status').value = btn.dataset.status || 'UPCOMING';
+      document.getElementById('edit-race-modal').classList.remove('hidden');
+    }
+
+    function openEditRaceModal(id, name, country, flag, date, laps, lengthKm, status) {
+      document.getElementById('edit-race-id').value = id || '';
+      document.getElementById('edit-race-name').value = name || '';
+      document.getElementById('edit-race-country').value = country || '';
+      document.getElementById('edit-race-flag').value = flag || '';
+      document.getElementById('edit-race-date').value = date || '';
+      document.getElementById('edit-race-laps').value = laps || '';
+      document.getElementById('edit-race-length').value = lengthKm || '';
+      document.getElementById('edit-race-status').value = status || 'UPCOMING';
+      document.getElementById('edit-race-modal').classList.remove('hidden');
+    }
+  </script>
+
+</main>
+
+<%- include('../partials/footer') %>

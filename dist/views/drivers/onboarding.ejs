@@ -1,0 +1,188 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+<%- include('../partials/flash') %>
+
+<main class="flex-grow py-12 px-4 sm:px-6 lg:px-8 max-w-xl mx-auto w-full">
+  <div class="mb-8 text-center sm:text-left">
+    <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/[0.04] border border-white/10 text-xs font-semibold text-[#DE382B] mb-2">
+      <i class="fas fa-id-card text-[#DE382B]"></i>
+      <span>Fahreridentität &amp; Setup</span>
+    </div>
+    <h1 class="text-3xl font-bold tracking-tight text-white">Cockpit-Setup</h1>
+    <p class="text-sm text-slate-400 mt-1">
+      Trage deine Plattform- und EA-Daten ein, damit dich die Rennleitung zu Ligalobbies einladen kann.
+    </p>
+  </div>
+
+  <div class="bg-slate-900/70 backdrop-blur-2xl border border-white/10 rounded-3xl p-6 sm:p-8 shadow-2xl">
+    <form action="/driver/onboarding" method="POST" class="space-y-6">
+      
+      <!-- 1. Plattform auswählen -->
+      <div>
+        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-2 font-mono">
+          1. Deine Plattform <span class="text-[#DE382B]">*</span>
+        </label>
+        
+        <div class="space-y-3">
+          <!-- PC Launcher -->
+          <div>
+            <span class="text-[10px] font-mono text-slate-400 uppercase tracking-wider block mb-1.5">PC Launchers</span>
+            <div class="grid grid-cols-2 gap-2">
+              <label class="cursor-pointer">
+                <input type="radio" name="platform" value="PC_STEAM" class="peer sr-only" <%= (user.platform === 'PC_STEAM' || user.platform === 'PC' || !user.platform) ? 'checked' : '' %>>
+                <div class="p-3 rounded-xl bg-slate-950/80 border border-white/10 peer-checked:border-[#DE382B] peer-checked:bg-[#DE382B]/10 text-xs font-bold text-slate-300 peer-checked:text-white transition-all flex items-center justify-between">
+                  <span>Steam (PC)</span>
+                  <span class="text-[10px] text-slate-400 font-mono">PC</span>
+                </div>
+              </label>
+
+              <label class="cursor-pointer">
+                <input type="radio" name="platform" value="PC_EA" class="peer sr-only" <%= (user.platform === 'PC_EA') ? 'checked' : '' %>>
+                <div class="p-3 rounded-xl bg-slate-950/80 border border-white/10 peer-checked:border-[#DE382B] peer-checked:bg-[#DE382B]/10 text-xs font-bold text-slate-300 peer-checked:text-white transition-all flex items-center justify-between">
+                  <span>EA App (PC)</span>
+                  <span class="text-[10px] text-slate-400 font-mono">PC</span>
+                </div>
+              </label>
+
+              <label class="cursor-pointer">
+                <input type="radio" name="platform" value="PC_XBOX" class="peer sr-only" <%= (user.platform === 'PC_XBOX') ? 'checked' : '' %>>
+                <div class="p-3 rounded-xl bg-slate-950/80 border border-white/10 peer-checked:border-[#DE382B] peer-checked:bg-[#DE382B]/10 text-xs font-bold text-slate-300 peer-checked:text-white transition-all flex items-center justify-between">
+                  <span>Xbox App (PC)</span>
+                  <span class="text-[10px] text-slate-400 font-mono">GamePass</span>
+                </div>
+              </label>
+
+              <label class="cursor-pointer">
+                <input type="radio" name="platform" value="PC_EPIC" class="peer sr-only" <%= (user.platform === 'PC_EPIC') ? 'checked' : '' %>>
+                <div class="p-3 rounded-xl bg-slate-950/80 border border-white/10 peer-checked:border-[#DE382B] peer-checked:bg-[#DE382B]/10 text-xs font-bold text-slate-300 peer-checked:text-white transition-all flex items-center justify-between">
+                  <span>Epic Games</span>
+                  <span class="text-[10px] text-slate-400 font-mono">PC</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- Konsolen -->
+          <div>
+            <span class="text-[10px] font-mono text-slate-400 uppercase tracking-wider block mb-1.5">Konsolen</span>
+            <div class="grid grid-cols-2 gap-2">
+              <label class="cursor-pointer">
+                <input type="radio" name="platform" value="PLAYSTATION" class="peer sr-only" <%= (user.platform === 'PLAYSTATION' || user.platform === 'PS5') ? 'checked' : '' %>>
+                <div class="p-3 rounded-xl bg-slate-950/80 border border-white/10 peer-checked:border-[#DE382B] peer-checked:bg-[#DE382B]/10 text-xs font-bold text-slate-300 peer-checked:text-white transition-all flex items-center justify-between">
+                  <span>PlayStation</span>
+                  <span class="text-[10px] text-slate-400 font-mono">PSN</span>
+                </div>
+              </label>
+
+              <label class="cursor-pointer">
+                <input type="radio" name="platform" value="XBOX" class="peer sr-only" <%= (user.platform === 'XBOX') ? 'checked' : '' %>>
+                <div class="p-3 rounded-xl bg-slate-950/80 border border-white/10 peer-checked:border-[#DE382B] peer-checked:bg-[#DE382B]/10 text-xs font-bold text-slate-300 peer-checked:text-white transition-all flex items-center justify-between">
+                  <span>Xbox Console</span>
+                  <span class="text-[10px] text-slate-400 font-mono">Series X|S</span>
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. EA App ID (Crossplay Pflicht) -->
+      <div>
+        <label for="eaId" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1 font-mono">
+          2. Exakter EA-Account Name / EA-ID <span class="text-[#DE382B]">*</span>
+        </label>
+        <input 
+          type="text" 
+          id="eaId" 
+          name="eaId" 
+          required 
+          value="<%= user.eaId || user.gamertag || '' %>"
+          placeholder="z. B. ApexPredator_EA" 
+          class="w-full px-4 py-2.5 rounded-xl bg-slate-950/80 border border-white/10 text-white focus:outline-none focus:border-white/25 text-sm font-sans placeholder-slate-600 transition-colors"
+        >
+        <p class="text-[11px] text-amber-400/90 mt-1 font-mono">
+          ⚡ Wichtig: Über diesen Namen lädt dich der Host in die offizielle Ingame-Lobby ein (Crossplay via EA Friends).
+        </p>
+      </div>
+
+      <!-- 3. Gamertag auf gewählter Plattform -->
+      <div>
+        <label for="platformUsername" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1 font-mono">
+          3. Gamertag auf dieser Plattform <span class="text-[#DE382B]">*</span>
+        </label>
+        <input 
+          type="text" 
+          id="platformUsername" 
+          name="platformUsername" 
+          required 
+          value="<%= user.platformUsername || user.gamertag || '' %>"
+          placeholder="z. B. Dein Steam-Name, deine PSN Online-ID oder dein Xbox Gamertag" 
+          class="w-full px-4 py-2.5 rounded-xl bg-slate-950/80 border border-white/10 text-white focus:outline-none focus:border-white/25 text-sm font-sans placeholder-slate-600 transition-colors"
+        >
+        <p class="text-[11px] text-slate-400 mt-1">
+          Dein nativer Accountname auf Steam, PSN, Xbox, EA oder Epic.
+        </p>
+      </div>
+
+      <!-- 4. Startnummer -->
+      <div>
+        <label for="raceNumber" class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1 font-mono">
+          4. Gewünschte Startnummer (1–99) <span class="text-[#DE382B]">*</span>
+        </label>
+        <div class="relative">
+          <span class="absolute left-3.5 top-2.5 text-slate-400 font-mono font-bold">#</span>
+          <input 
+            type="number" 
+            id="raceNumber" 
+            name="raceNumber" 
+            min="1" 
+            max="99" 
+            required 
+            value="<%= user.raceNumber || '' %>"
+            placeholder="77" 
+            class="w-full pl-8 pr-4 py-2.5 rounded-xl bg-slate-950/80 border border-white/10 text-white focus:outline-none focus:border-white/25 text-sm font-mono placeholder-slate-600 transition-colors"
+          >
+        </div>
+        <p class="text-[11px] text-slate-400 mt-1">Eindeutig je Fahrer (1–99).</p>
+      </div>
+
+      <!-- Optionale Angaben kompakt -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-white/10">
+        <div>
+          <label for="assists" class="block text-[11px] font-mono text-slate-400 mb-1 uppercase">Fahrhilfen (Optional)</label>
+          <input 
+            type="text" 
+            id="assists" 
+            name="assists" 
+            value="<%= user.assists || '' %>"
+            placeholder="z. B. Keine / TC Mittel" 
+            class="w-full px-3 py-2 rounded-xl bg-slate-950/80 border border-white/10 text-white text-xs focus:outline-none focus:border-white/25"
+          >
+        </div>
+
+        <div>
+          <label for="experience" class="block text-[11px] font-mono text-slate-400 mb-1 uppercase">Erfahrung (Optional)</label>
+          <input 
+            type="text" 
+            id="experience" 
+            name="experience" 
+            value="<%= user.experience || '' %>"
+            placeholder="z. B. Fanatec DD / 2 Jahre Liga" 
+            class="w-full px-3 py-2 rounded-xl bg-slate-950/80 border border-white/10 text-white text-xs focus:outline-none focus:border-white/25"
+          >
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <button 
+        type="submit" 
+        class="w-full py-3.5 px-6 rounded-xl bg-[#DE382B] hover:bg-[#C52B1F] text-white font-bold text-sm transition-all shadow-xl shadow-red-950/40 uppercase tracking-wider font-display hover:-translate-y-0.5"
+      >
+        Cockpit aktivieren &amp; Profil speichern
+      </button>
+
+    </form>
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

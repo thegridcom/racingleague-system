@@ -1,0 +1,10 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const results_controller_1 = require("./results.controller");
+const router = (0, express_1.Router)();
+router.get('/standings', results_controller_1.ResultsController.getStandingsPage);
+router.get('/standings/export/csv', results_controller_1.ResultsController.exportStandingsCsv);
+router.get('/standings/export/json', results_controller_1.ResultsController.exportStandingsJson);
+router.get('/races/:raceId/attendance/export/csv', results_controller_1.ResultsController.exportAttendanceCsv);
+exports.default = router;

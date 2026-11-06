@@ -1,0 +1,39 @@
+<% if (locals.announcement && locals.announcement.text) { %>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+    <div class="glassmorphism rounded-full px-4 py-2.5 border border-[#DE382B]/30 bg-slate-900/80 text-white text-xs text-center flex items-center justify-center gap-2.5 shadow-xl">
+      <span class="w-2 h-2 rounded-full bg-[#DE382B] animate-pulse flex-shrink-0"></span>
+      <span class="font-mono text-[10px] uppercase tracking-wider text-[#DE382B] font-bold px-2 py-0.5 rounded-full bg-[#DE382B]/20 border border-[#DE382B]/30">Ankündigung</span>
+      <span class="text-slate-200 font-medium"><%= locals.announcement.text %></span>
+    </div>
+  </div>
+<% } %>
+
+<% if (locals.flashMessage) { %>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+    <div class="p-3.5 rounded-2xl border text-sm flex items-center justify-between font-medium backdrop-blur-xl shadow-xl
+      <% if (locals.flashMessage.type === 'success') { %>
+        bg-emerald-950/60 border-emerald-500/30 text-emerald-200
+      <% } else if (locals.flashMessage.type === 'danger') { %>
+        bg-rose-950/60 border-rose-500/30 text-rose-200
+      <% } else if (locals.flashMessage.type === 'warning') { %>
+        bg-amber-950/60 border-amber-500/30 text-amber-200
+      <% } else { %>
+        bg-slate-800/80 border-cyan-500/30 text-cyan-200
+      <% } %>
+    ">
+      <div class="flex items-center gap-2.5">
+        <% if (locals.flashMessage.type === 'success') { %>
+          <i class="fas fa-check-circle text-emerald-400"></i>
+        <% } else if (locals.flashMessage.type === 'danger') { %>
+          <i class="fas fa-triangle-exclamation text-rose-400"></i>
+        <% } else { %>
+          <i class="fas fa-info-circle text-amber-400"></i>
+        <% } %>
+        <span><%= locals.flashMessage.text %></span>
+      </div>
+      <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-white ml-3 text-lg leading-none">
+        &times;
+      </button>
+    </div>
+  </div>
+<% } %>

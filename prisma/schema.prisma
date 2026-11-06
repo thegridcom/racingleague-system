@@ -1,0 +1,131 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id               String          @id @default(cuid())
+  discordId        String          @unique
+  discordUsername  String
+  discordAvatar    String?
+  gamertag         String?
+  eaId             String?         // EA-Name / EA App ID (Pflicht für Crossplay-Lobbyeinladungen)
+  platform         String?         // "PC_STEAM" | "PC_EA" | "PC_XBOX" | "PC_EPIC" | "PLAYSTATION" | "XBOX"
+  platformUsername String?         // Plattform-spezifischer Gamertag (Steam-Name, PSN-ID, Xbox Gamertag)
+  raceNumber       Int?            @unique
+  assists          String?
+  experience       String?
+  role             String          @default("RESERVE") // "ADMIN", "DRIVER", "RESERVE"
+  isAdmin          Boolean         @default(false)     // Panel-Administrator-Rechte (unabhängig vom Fahrerstatus)
+  hasDriverRole    Boolean         @default(true)      // Verifizierte Discord-Fahrer-Rolle (1545431083905065071)
+  teamId           String?
+  team             Team?           @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  attendances      Attendance[]
+  raceResults      RaceResult[]
+  penalties        DriverPenalty[]
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+}
+
+model Team {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  shortCode String   @unique // e.g. "RBR", "FER", "MCL"
+  colorHex  String   // e.g. "#3671C6"
+  logoUrl   String?
+  drivers   User[]
+  createdAt DateTime @default(now())
+}
+
+model Season {
+  id        String          @id @default(cuid())
+  name      String
+  year      Int             @default(2026)
+  status    String          @default("UPCOMING") // "UPCOMING", "ACTIVE", "PAUSED", "COMPLETED"
+  races     Race[]
+  penalties DriverPenalty[]
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+}
+
+model Race {
+  id             String          @id @default(cuid())
+  seasonId       String
+  season         Season          @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+  roundNumber    Int
+  trackName      String
+  country        String
+  flagEmoji      String          @default("🏁")
+  trackLayoutSvg String?         // SVG Path-Daten für die visuelle Streckenkarte
+  lengthKm       Float?          // z.B. 5.412 km
+  laps           Int?            // z.B. 57 Runden
+  date           DateTime
+  status         String          @default("UPCOMING") // "UPCOMING", "ACTIVE", "COMPLETED", "CANCELLED"
+  attendances    Attendance[]
+  results        RaceResult[]
+  penalties      DriverPenalty[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}
+
+model Attendance {
+  id        String   @id @default(cuid())
+  raceId    String
+  race      Race     @relation(fields: [raceId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status    String   // "ATTENDING", "ABSENT", "RESERVE"
+  notes     String?
+  updatedAt DateTime @updatedAt
+
+  @@unique([raceId, userId])
+}
+
+model RaceResult {
+  id             String   @id @default(cuid())
+  raceId         String
+  race           Race     @relation(fields: [raceId], references: [id], onDelete: Cascade)
+  userId         String?
+  user           User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  driverName     String
+  teamName       String
+  position       Int
+  gridPosition   Int?
+  points         Float    @default(0)
+  fastestLap     Boolean  @default(false)
+  fastestLapTime String?
+  status         String   @default("FINISHED") // "FINISHED", "DNF", "DSQ", "DNS"
+  penaltySeconds Int      @default(0)
+  penaltyPoints  Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([raceId, position])
+}
+
+model DriverPenalty {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  seasonId      String?
+  season        Season?   @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+  raceId        String?
+  race          Race?     @relation(fields: [raceId], references: [id], onDelete: SetNull)
+  type          String    // "WARNING", "PENALTY_POINTS", "POINT_DEDUCTION", "POINT_ADDITION"
+  points        Float     @default(0) // z.B. -3.0 oder +2.0 WM-Punkte
+  penaltyPoints Int       @default(0) // Lizenz-Strafpunkte (z.B. 1, 2, 3)
+  reason        String    // Begründung / Vorfall
+  stewardName   String    @default("Rennleitung")
+  createdAt     DateTime  @default(now())
+}
+
+model SystemSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+

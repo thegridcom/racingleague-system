@@ -1,0 +1,46 @@
+{
+  "name": "thegridracing",
+  "version": "1.0.0",
+  "description": "the grid. - racing league: Web-Plattform mit Discord-Bot & DSGVO-Compliance",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc && rm -rf dist/views && cp -R src/views dist/views",
+    "start": "node dist/index.js",
+    "seed": "tsx prisma/seed.ts",
+    "prisma:generate": "prisma generate",
+    "prisma:push": "prisma db push"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
+  "keywords": [
+    "f1",
+    "simracing",
+    "discord-bot",
+    "dsgvo",
+    "racing-league"
+  ],
+  "author": "the grid. - racing league",
+  "license": "ISC",
+  "dependencies": {
+    "@prisma/client": "^6.19.3",
+    "axios": "^1.21.0",
+    "discord.js": "^14.28.1",
+    "dotenv": "^18.0.9",
+    "ejs": "^7.0.2",
+    "express": "^5.3.0",
+    "express-session": "^1.19.0"
+  },
+  "devDependencies": {
+    "@types/ejs": "^3.1.5",
+    "@types/express": "^5.0.0",
+    "@types/express-session": "^1.18.2",
+    "@types/node": "^22.13.10",
+    "nodemon": "^3.1.9",
+    "prisma": "^6.19.3",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.23.15",
+    "typescript": "^5.8.2"
+  }
+}

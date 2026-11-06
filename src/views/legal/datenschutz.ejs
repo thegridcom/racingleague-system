@@ -1,0 +1,168 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+<%- include('../partials/flash') %>
+
+<main class="flex-grow py-12 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto w-full">
+  <div class="mb-8">
+    <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/[0.04] border border-white/10 text-xs font-semibold text-[#DE382B] mb-2">
+      <i class="fas fa-shield-halved text-[#DE382B]"></i>
+      <span>Datenschutz &amp; Privatsphäre</span>
+    </div>
+    <h1 class="text-3xl font-bold tracking-tight text-white">Datenschutzerklärung</h1>
+    <p class="text-sm text-slate-400 mt-1">Informationen zur Verarbeitung personenbezogener Daten gemäß DSGVO (EU-Verordnung 2016/679)</p>
+  </div>
+
+  <div class="space-y-8 bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl p-6 sm:p-8 text-sm leading-relaxed text-slate-300 shadow-2xl">
+    
+    <!-- Präambel -->
+    <section>
+      <div class="p-4 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-emerald-200 text-xs mb-4 flex items-center gap-2.5 shadow-inner">
+        <i class="fas fa-check-circle text-emerald-400 text-base flex-shrink-0"></i>
+        <span><strong>100% Tracker-Frei:</strong> Wie im gesamten thegridcom.org Netzwerk setzen wir weder Google Analytics, Werbenetzwerke noch sonstige Third-Party-Tracking-Tools ein. Aus diesem Grund ist kein nerviger Consent-Banner erforderlich.</span>
+      </div>
+      <p>
+        Wir nehmen den Schutz deiner persönlichen Daten sehr ernst. Nachfolgend informieren wir dich transparent und lückenlos darüber, welche Daten bei der Nutzung von <strong>the grid. - racing league</strong> erhoben, verarbeitet und gespeichert werden.
+      </p>
+    </section>
+
+    <!-- 1. Verantwortlicher -->
+    <section class="border-t border-white/10 pt-6">
+      <h2 class="text-lg font-bold text-white mb-2">1. Verantwortliche Stelle (Art. 4 Nr. 7 DSGVO)</h2>
+      <p class="text-xs text-slate-400">
+        Verantwortlich für die Datenverarbeitung auf dieser Plattform ist die Ligaleitung von <em>the grid. - racing league</em> (private Freizeit-Community c/o FroglyStudios, Berlin).<br>
+        Kontakt: Über das Community-Discord-Ticket-System oder per E-Mail an <span class="font-mono text-slate-200">support@thegridcom.org</span>.
+      </p>
+    </section>
+
+    <!-- 2. Genaue Aufstellung der verarbeiteten Daten -->
+    <section class="border-t border-white/10 pt-6">
+      <h2 class="text-lg font-bold text-white mb-3">2. Genaue Aufstellung der erhobenen Daten</h2>
+      <p class="mb-4 text-xs text-slate-400">
+        Wir erheben ausschließlich Daten, die für die Organisation und Durchführung der Rennliga sowie für die Meisterschaftsauswertung technisch und organisatorisch zwingend erforderlich sind:
+      </p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+        
+        <div class="p-4 rounded-xl bg-slate-950/70 border border-white/10 shadow-inner">
+          <h3 class="font-bold text-white mb-2 font-mono flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-[#5865F2]"></span>
+            A. Discord OAuth2 Daten
+          </h3>
+          <p class="text-slate-400 mb-2">Erfolgt über den minimalen Berechtigungsumfang (Scope <code>identify</code> und <code>guilds.members.read</code>):</p>
+          <ul class="list-disc list-inside space-y-1 text-slate-300">
+            <li><strong>Discord-ID</strong> (eindeutiger numerischer Bezeichner)</li>
+            <li><strong>Discord-Username / Anzeigename</strong></li>
+            <li><strong>Avatar-Hash</strong> (zur Anzeige des Profilbilds)</li>
+            <li><strong>Discord-Server-Rollen</strong> (zur Prüfung von Admin- / Stammfahrer-Berechtigungen)</li>
+          </ul>
+        </div>
+
+        <div class="p-4 rounded-xl bg-slate-950/70 border border-white/10 shadow-inner">
+          <h3 class="font-bold text-white mb-2 font-mono flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-[#DE382B]"></span>
+            B. Fahrerprofil &amp; Ingame-Daten
+          </h3>
+          <p class="text-slate-400 mb-2">Vom Fahrer im Rahmen des Onboardings selbst angegeben:</p>
+          <ul class="list-disc list-inside space-y-1 text-slate-300">
+            <li><strong>Ingame-Gamertag / EA-ID</strong> (zum Finden in der Spiellobby)</li>
+            <li><strong>Plattform</strong> (PC, PlayStation 5, Xbox)</li>
+            <li><strong>Gewünschte Startnummer</strong> (1 bis 99, eindeutig vergeben)</li>
+            <li><strong>Fahrhilfen &amp; Ligaerfahrung</strong> (freiwillige Angabe)</li>
+          </ul>
+        </div>
+
+        <div class="p-4 rounded-xl bg-slate-950/70 border border-white/10 shadow-inner">
+          <h3 class="font-bold text-white mb-2 font-mono flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+            C. Liga- &amp; Ergebnis-Daten
+          </h3>
+          <p class="text-slate-400 mb-2">Entstehen im regulären Ligabetrieb:</p>
+          <ul class="list-disc list-inside space-y-1 text-slate-300">
+            <li><strong>Teamzuordnung</strong> (z. B. Ferrari, Red Bull, etc.)</li>
+            <li><strong>Anwesenheitsstatus</strong> (🟢 Dabei, 🔴 Abgemeldet, 🟡 Reserve)</li>
+            <li><strong>Rennplatzierungen, Zeiten, Strafpunkte &amp; Punkte</strong></li>
+          </ul>
+        </div>
+
+        <div class="p-4 rounded-xl bg-slate-950/70 border border-white/10 shadow-inner">
+          <h3 class="font-bold text-white mb-2 font-mono flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+            D. Technisch notwendige Cookies
+          </h3>
+          <p class="text-slate-400 mb-2">Ausschließlich First-Party Session-Cookies:</p>
+          <ul class="list-disc list-inside space-y-1 text-slate-300">
+            <li><strong>connect.sid:</strong> Verschlüsselter Session-Identifier zur Aufrechterhaltung deines Logins (Löschung bei Browser-Schließen bzw. Logout).</li>
+            <li>Keine Werbe- oder Analyse-Cookies!</li>
+          </ul>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 3. Rechtsgrundlagen -->
+    <section class="border-t border-white/10 pt-6">
+      <h2 class="text-lg font-bold text-white mb-2">3. Rechtsgrundlagen der Verarbeitung (Art. 6 DSGVO)</h2>
+      <ul class="list-disc list-inside space-y-1.5 text-xs text-slate-400">
+        <li><strong>Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung / Durchführung des Community-Verhältnisses):</strong> Die Speicherung von Gamertag, Plattform, Startnummer und Rennergebnissen ist zur Teilnahme am Ligabetrieb zwingend notwendig.</li>
+        <li><strong>Art. 6 Abs. 1 lit. f DSGVO (Berechtigtes Interesse):</strong> Gewährleistung des sicheren und stabilen Betriebs der Website sowie der Missbrauchsvermeidung.</li>
+        <li><strong>Art. 6 Abs. 1 lit. a DSGVO (Einwilligung):</strong> Freiwillige Zusatzangaben wie Fahrhilfen oder Erfahrung.</li>
+      </ul>
+    </section>
+
+    <!-- 4. Art. 17 DSGVO Self-Service Account-Löschung -->
+    <section class="border-t border-white/10 pt-6">
+      <div class="p-5 rounded-2xl bg-red-950/20 border border-red-500/30 shadow-xl">
+        <h2 class="text-lg font-bold text-red-400 mb-2 flex items-center gap-2">
+          <i class="fas fa-trash-can text-red-400"></i>
+          <span>4. DSGVO Art. 17: Recht auf Löschung (Self-Service)</span>
+        </h2>
+        <p class="text-xs text-slate-300 mb-3 leading-relaxed">
+          Du besitzt das uneingeschränkte Recht auf unverzügliche Löschung deiner personenbezogenen Daten. Wir haben dafür eine <strong>vollautomatisierte Self-Service-Löschfunktion</strong> direkt in deinem Fahrer-Dashboard integriert.
+        </p>
+        <div class="bg-slate-950/80 p-4 rounded-xl border border-white/10 text-xs space-y-2">
+          <div class="font-bold text-white">Ablauf der technischen Löschung:</div>
+          <p class="text-slate-400 leading-relaxed">
+            • Klickst du in der Danger Zone deines Profils auf <em>"Account und alle Daten unwiderruflich löschen"</em> und bestätigst dies mit dem Sicherheitswort <code>LÖSCHEN</code>, wird dein Nutzerkonto samt Discord-Verknüpfung, Gamertag, Plattform, Startnummer und allen Anwesenheitsrückmeldungen sofort physisch aus der Datenbank gelöscht.
+          </p>
+          <p class="text-slate-400 leading-relaxed">
+            • <strong>Statistik- und Integritätsschutz:</strong> Historische Rennergebnisse bereits abgeschlossener Meisterschaften bleiben zur Wahrung der Integrität der Gesamt-Tabelle erhalten, werden jedoch <strong>vollständig anonymisiert</strong> (der Fahrername wird durch <em>"Gelöschter Fahrer (anonymisiert)"</em> ersetzt und der Verweis auf deine Nutzer-ID wird via Foreign-Key auf <code>NULL</code> gesetzt). Es besteht danach keinerlei Rückführbarkeit auf deine reale Person oder deinen Discord-Account mehr.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Weitere Betroffenenrechte -->
+    <section class="border-t border-white/10 pt-6">
+      <h2 class="text-lg font-bold text-white mb-2">5. Deine weiteren Rechte als betroffene Person</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-slate-400">
+        <div class="p-3.5 rounded-xl bg-slate-950/70 border border-white/10">
+          <strong class="text-white block mb-0.5">Auskunftsrecht (Art. 15 DSGVO)</strong>
+          Du kannst jederzeit unentgeltlich Auskunft über deine bei uns gespeicherten Daten verlangen.
+        </div>
+        <div class="p-3.5 rounded-xl bg-slate-950/70 border border-white/10">
+          <strong class="text-white block mb-0.5">Berichtigungsrecht (Art. 16 DSGVO)</strong>
+          Du kannst unrichtige Daten (Gamertag, Plattform, Hilfen) jederzeit in deinem Dashboard selbst korrigieren.
+        </div>
+        <div class="p-3.5 rounded-xl bg-slate-950/70 border border-white/10">
+          <strong class="text-white block mb-0.5">Einschränkung &amp; Widerspruch (Art. 18, 21 DSGVO)</strong>
+          Du kannst der weiteren Verarbeitung deiner Daten widersprechen.
+        </div>
+        <div class="p-3.5 rounded-xl bg-slate-950/70 border border-white/10">
+          <strong class="text-white block mb-0.5">Datenübertragbarkeit (Art. 20 DSGVO)</strong>
+          Über unsere Export-Funktion (JSON/CSV) kannst du Tabellen- und Profildaten maschinenlesbar exportieren.
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. Beschwerderecht -->
+    <section class="border-t border-white/10 pt-6">
+      <h2 class="text-lg font-bold text-white mb-2">6. Beschwerderecht bei der Aufsichtsbehörde (Art. 77 DSGVO)</h2>
+      <p class="text-xs text-slate-400">
+        Du hast das Recht, dich bei einer Datenschutz-Aufsichtsbehörde über die Verarbeitung deiner personenbezogenen Daten durch uns zu beschweren.
+      </p>
+    </section>
+
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

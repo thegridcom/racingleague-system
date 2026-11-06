@@ -1,0 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const auth_controller_1 = require("./auth.controller");
+const router = (0, express_1.Router)();
+router.get('/login', auth_controller_1.AuthController.getLoginPage);
+router.get('/discord', auth_controller_1.AuthController.redirectToDiscord);
+router.get('/discord/callback', auth_controller_1.AuthController.handleDiscordCallback);
+router.get('/logout', auth_controller_1.AuthController.logout);
+router.post('/logout', auth_controller_1.AuthController.logout);
+router.get('/dev-login/:role', auth_controller_1.AuthController.devLogin);
+exports.default = router;

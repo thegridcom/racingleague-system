@@ -1,0 +1,246 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+<%- include('../partials/flash') %>
+
+<% if (typeof deleted !== 'undefined' && deleted) { %>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+    <div class="p-4 rounded-2xl bg-emerald-950/60 border border-emerald-500/40 text-emerald-200 text-sm flex items-start gap-3 backdrop-blur-xl shadow-xl">
+      <i class="fas fa-check-circle text-emerald-400 text-lg mt-0.5"></i>
+      <div>
+        <strong class="font-bold text-white block mb-0.5">DSGVO Art. 17 Bestätigung:</strong>
+        Dein Benutzerkonto und alle personenbezogenen Daten wurden erfolgreich und unwiderruflich aus unserer Datenbank gelöscht. Historische Rennergebnisse wurden vollständig anonymisiert.
+      </div>
+    </div>
+  </div>
+<% } %>
+
+<!-- Hero Section (thegridcom.org Hero Layout) -->
+<section class="relative py-16 sm:py-24 overflow-hidden">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    <div class="max-w-3xl">
+      
+      <!-- thegridcom.org Badge -->
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.04] backdrop-blur-xl border border-white/10 text-xs font-semibold text-[#DE382B] mb-6 shadow-lg">
+        <i class="fas fa-flag-checkered text-[#DE382B]"></i>
+        <span class="text-slate-200">the grid. Simracing Meisterschaft // Saison 2026</span>
+      </div>
+
+      <h1 class="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white mb-6 leading-[1.1]">
+        Willkommen bei<br>
+        the&nbsp;<span class="text-[#DE382B]">grid.</span> <span class="text-2xl sm:text-4xl text-slate-400 font-mono font-medium block sm:inline sm:ml-2">racing</span>
+      </h1>
+
+      <p class="text-base sm:text-lg text-slate-300 leading-relaxed mb-8 max-w-2xl font-normal">
+        Das motorsportliche Zuhause für anspruchsvolle Fahrer. Automatische Tabellen-Synchronisation via Discord-Bot, transparente 50% Renndistanzen, lückenlose Anwesenheitsplanung und 100% datenschutzkonforme Architektur.
+      </p>
+
+      <div class="flex flex-wrap items-center gap-4">
+        <% if (locals.user) { %>
+          <a href="/driver/dashboard" class="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-[#DE382B] hover:bg-[#C52B1F] text-white font-semibold text-sm transition-all shadow-xl shadow-red-950/40 hover:-translate-y-0.5">
+            <i class="fas fa-gauge-high"></i>
+            <span>Zum Fahrer-Cockpit</span>
+            <i class="fas fa-arrow-right text-xs"></i>
+          </a>
+        <% } else { %>
+          <a href="/auth/login" class="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl bg-[#5865F2] hover:bg-[#4752C4] text-white font-semibold text-sm transition-all shadow-xl shadow-indigo-600/30 hover:-translate-y-0.5">
+            <i class="fab fa-discord text-base"></i>
+            <span>Mit Discord beitreten</span>
+          </a>
+        <% } %>
+
+        <a href="/standings" class="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-white/[0.05] hover:bg-white/10 border border-white/10 text-white font-medium text-sm transition-all hover:-translate-y-0.5 shadow-lg">
+          <i class="fas fa-trophy text-amber-400 text-xs"></i>
+          <span>WM-Standings ansehen</span>
+        </a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- Main Highlights -->
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 pb-16">
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+    
+    <!-- Left Column: Nächstes Rennen Teaser & Feature Cards -->
+    <div class="lg:col-span-7 space-y-8">
+      
+      <!-- Nächstes Rennen Card im thegridcom.org Glassmorphism-Look -->
+      <% if (nextRace) { %>
+        <div class="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl p-6 sm:p-7 relative overflow-hidden shadow-2xl hover:border-white/20 transition-all">
+          
+          <div class="flex items-center justify-between mb-4 relative z-10 flex-wrap gap-2">
+            <div class="flex items-center gap-3">
+              <span class="text-3xl"><%= nextRace.flagEmoji %></span>
+              <div>
+                <span class="font-mono text-xs uppercase text-[#DE382B] font-bold tracking-wider flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-[#DE382B] animate-pulse"></span>
+                  Nächstes Saisonrennen
+                </span>
+                <h3 class="text-xl font-bold text-white"><%= nextRace.trackName %></h3>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="px-3 py-1 rounded-full bg-[#DE382B]/15 border border-[#DE382B]/30 text-xs font-mono text-red-300 font-bold">
+                50% Renndistanz
+              </span>
+              <span class="px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 text-xs font-mono text-slate-300">
+                Runde <%= nextRace.roundNumber %> // 2026
+              </span>
+            </div>
+          </div>
+
+          <!-- Strecken-Grafik & Kennzahlen -->
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center mb-6 bg-slate-950/60 p-5 rounded-2xl border border-white/5">
+            
+            <!-- Vektor-Streckenlayout SVG -->
+            <div class="md:col-span-7 flex flex-col items-center justify-center relative">
+              <% if (nextRace.trackLayoutSvg) { %>
+                <div class="w-full h-36 flex items-center justify-center p-2">
+                  <svg viewBox="0 0 400 300" class="w-full h-full stroke-red-500 fill-none drop-shadow-[0_0_8px_rgba(222,56,43,0.4)]" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="<%= nextRace.trackLayoutSvg %>" />
+                    <circle cx="100" cy="220" r="5" class="fill-white stroke-black" stroke-width="1.5" />
+                  </svg>
+                </div>
+                <span class="text-[10px] font-mono text-slate-400 -mt-1 tracking-wider uppercase">Official Circuit Map // 50% Distanz</span>
+              <% } else { %>
+                <div class="text-center py-8 text-slate-400 font-mono text-xs">🏁 Grand-Prix-Strecke (50% Distanz)</div>
+              <% } %>
+            </div>
+
+            <!-- Streckendaten -->
+            <div class="md:col-span-5 grid grid-cols-2 gap-3 text-xs border-t md:border-t-0 md:border-l border-white/10 pt-4 md:pt-0 md:pl-4">
+              <div>
+                <span class="text-slate-400 font-mono block text-[10px] uppercase">Streckenlänge</span>
+                <span class="font-mono text-white font-bold text-sm"><%= nextRace.lengthKm ?? '5.4' %> km</span>
+              </div>
+              <div>
+                <span class="text-slate-400 font-mono block text-[10px] uppercase">Renndistanz</span>
+                <span class="font-mono text-white font-bold text-sm"><%= nextRace.laps ?? '29' %> Runden</span>
+              </div>
+              <div class="col-span-2 pt-2 border-t border-white/5">
+                <span class="text-slate-400 font-mono block text-[10px] uppercase">Startzeit</span>
+                <span class="font-mono text-slate-200 font-semibold text-xs">
+                  <%= new Date(nextRace.date).toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) %> Uhr
+                </span>
+              </div>
+              <div class="col-span-2">
+                <span class="text-slate-400 font-mono block text-[10px] uppercase">Zusagen (Check-In)</span>
+                <span class="font-mono text-emerald-400 font-bold"><%= nextRace.attendances?.filter(a => a.status === 'ATTENDING').length || 0 %> Fahrer gemeldet</span>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="flex items-center gap-3">
+            <a href="/races/<%= nextRace.id %>" class="px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 text-xs font-semibold text-white transition-all flex items-center gap-2">
+              <span>Streckenprofil &amp; Details</span>
+              <i class="fas fa-arrow-right text-[10px]"></i>
+            </a>
+            <% if (locals.user) { %>
+              <form action="/attendance/checkin" method="POST" class="inline">
+                <input type="hidden" name="raceId" value="<%= nextRace.id %>">
+                <input type="hidden" name="status" value="ATTENDING">
+                <input type="hidden" name="returnTo" value="/">
+                <button type="submit" class="px-5 py-2.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 text-xs font-semibold transition-all flex items-center gap-1.5">
+                  <i class="fas fa-check-circle"></i> 1-Klick Zusagen
+                </button>
+              </form>
+            <% } %>
+          </div>
+        </div>
+      <% } %>
+
+      <!-- Feature Grid im thegridcom.org Stil -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+        <div class="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-xl hover:border-white/20 hover:-translate-y-1 transition-all">
+          <div class="w-12 h-12 rounded-2xl bg-[#5865F2]/15 border border-[#5865F2]/30 flex items-center justify-center text-[#5865F2] text-xl mb-4">
+            <i class="fab fa-discord"></i>
+          </div>
+          <h4 class="font-bold text-white mb-1.5 text-base">Live Discord-Community</h4>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Live-Synchronisation in <code class="text-slate-200 bg-white/5 px-1.5 py-0.5 rounded">#rangliste</code>, automatisierter Renntag-Check-In und direkte Lobby-Koordination.
+          </p>
+        </div>
+
+        <div class="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-xl hover:border-white/20 hover:-translate-y-1 transition-all">
+          <div class="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-xl mb-4">
+            <i class="fas fa-shield-halved"></i>
+          </div>
+          <h4 class="font-bold text-white mb-1.5 text-base">DSGVO Art. 17 Self-Service</h4>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            Volle Datensouveränität. Ein Klick im Cockpit löscht deinen Account und alle personenbezogenen Daten unwiderruflich und DSGVO-konform.
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right Column: Timing Tower Standings -->
+    <div class="lg:col-span-5">
+      <div class="bg-slate-900/60 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+        
+        <div class="p-5 border-b border-white/10 flex items-center justify-between">
+          <div>
+            <span class="text-[10px] font-mono uppercase text-[#DE382B] font-bold tracking-wider flex items-center gap-1.5">
+              <i class="fas fa-trophy text-amber-400 text-xs"></i> Timing Tower
+            </span>
+            <h3 class="text-base font-bold text-white">Top Fahrerwertung</h3>
+          </div>
+          <a href="/standings" class="text-xs text-slate-400 hover:text-white font-medium flex items-center gap-1 transition-colors">
+            Alle anzeigen <i class="fas fa-chevron-right text-[10px]"></i>
+          </a>
+        </div>
+
+        <div class="divide-y divide-white/5">
+          <% if (topDrivers && topDrivers.length > 0) { %>
+            <% topDrivers.slice(0, 6).forEach((d) => { %>
+              <div class="px-5 py-3.5 flex items-center justify-between text-xs hover:bg-white/[0.03] transition-colors">
+                <div class="flex items-center gap-3">
+                  <span class="font-mono font-bold w-5 text-center <%= d.position === 1 ? 'text-amber-400' : d.position === 2 ? 'text-slate-300' : d.position === 3 ? 'text-amber-600' : 'text-slate-400' %>">
+                    <%= d.position %>
+                  </span>
+                  
+                  <!-- Team Color Bar -->
+                  <div class="w-1 h-6 rounded-full" style="background-color: <%= d.teamColorHex %>;"></div>
+
+                  <div>
+                    <div class="font-semibold text-white flex items-center gap-1.5">
+                      <span><%= d.driverName %></span>
+                      <% if (d.raceNumber) { %>
+                        <span class="text-[10px] font-mono text-slate-400">#<%= d.raceNumber %></span>
+                      <% } %>
+                    </div>
+                    <div class="text-[10px] text-slate-400 truncate max-w-[150px]">
+                      <%= d.teamName %>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="text-right">
+                  <div class="font-mono font-bold text-white tabular-nums"><%= d.points %> PTS</div>
+                  <div class="text-[10px] text-slate-400 font-mono"><%= d.wins %> W · <%= d.podiums %> P</div>
+                </div>
+              </div>
+            <% }); %>
+          <% } else { %>
+            <div class="p-8 text-center text-xs text-slate-400">
+              Noch keine Meisterschaftsergebnisse vorhanden.
+            </div>
+          <% } %>
+        </div>
+
+        <div class="p-4 bg-slate-950/60 border-t border-white/5 text-center">
+          <a href="/standings" class="text-xs font-semibold text-slate-300 hover:text-white inline-flex items-center gap-1.5 transition-colors">
+            <span>Vollständige Meisterschaftstabelle aufrufen</span>
+            <i class="fas fa-arrow-right text-[10px] text-[#DE382B]"></i>
+          </a>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<%- include('../partials/footer') %>

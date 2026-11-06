@@ -1,0 +1,208 @@
+<div class="sticky top-3 sm:top-4 z-50 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full pointer-events-none">
+  <header class="pointer-events-auto bg-slate-900/80 backdrop-blur-xl border border-white/10 shadow-2xl shadow-black/40 rounded-2xl md:rounded-full px-4 sm:px-6 py-2.5 transition-all">
+    <div class="flex items-center justify-between">
+      
+      <!-- Brand Logo & Überprojekt Link -->
+      <div class="flex items-center gap-3 sm:gap-4">
+        <a href="/" class="flex items-center gap-2.5 group">
+          <img 
+            src="/images/grid-racing-logo.jpg" 
+            alt="the grid. racing league" 
+            class="w-8 h-8 rounded-full object-cover border border-white/15 group-hover:border-[#DE382B] transition-colors shadow-sm"
+          >
+          <div class="flex items-baseline">
+            <span class="font-extrabold text-base tracking-tight text-white group-hover:text-slate-100 transition-colors">
+              the&nbsp;<span class="text-[#DE382B]">grid.</span>
+            </span>
+            <span class="ml-1.5 text-[9px] uppercase tracking-widest font-mono text-slate-400 font-semibold hidden xs:inline">
+              racing
+            </span>
+          </div>
+        </a>
+
+        <!-- Verlinkung zum Überprojekt thegridcom.org (im thegridcom Badge-Style) -->
+        <a 
+          href="https://thegridcom.org" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          title="Teil des thegridcom.org Community-Netzwerks"
+          class="hidden lg:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 text-[11px] font-mono text-slate-300 hover:text-white hover:border-white/25 transition-all"
+        >
+          <span class="w-1.5 h-1.5 rounded-full bg-[#f97316] animate-pulse"></span>
+          <span>thegridcom.org</span>
+          <i class="fas fa-external-link-alt text-[9px] opacity-60"></i>
+        </a>
+      </div>
+
+      <!-- Desktop Navigation Links -->
+      <nav class="hidden md:flex items-center gap-1.5 font-medium text-xs">
+        <a href="/calendar" class="px-3.5 py-1.5 rounded-full transition-all <%= (typeof currentPath !== 'undefined' && currentPath.startsWith('/calendar')) ? 'text-white bg-white/10 border border-white/15 font-semibold' : 'text-slate-300 hover:text-white hover:bg-white/5' %>">
+          Rennkalender
+        </a>
+        <a href="/standings" class="px-3.5 py-1.5 rounded-full transition-all <%= (typeof currentPath !== 'undefined' && currentPath.startsWith('/standings')) ? 'text-white bg-white/10 border border-white/15 font-semibold' : 'text-slate-300 hover:text-white hover:bg-white/5' %>">
+          WM-Standings
+        </a>
+        <a href="/driver/roster" class="px-3.5 py-1.5 rounded-full transition-all <%= (typeof currentPath !== 'undefined' && currentPath.startsWith('/driver/roster')) ? 'text-white bg-white/10 border border-white/15 font-semibold' : 'text-slate-300 hover:text-white hover:bg-white/5' %>">
+          Fahrerfeld
+        </a>
+
+        <% if (locals.user && (locals.user.role === 'ADMIN' || locals.user.isAdmin)) { %>
+          <a href="/admin" class="ml-1.5 px-3 py-1.5 rounded-full transition-all text-amber-300 bg-amber-500/15 border border-amber-500/30 hover:bg-amber-500/25 font-mono text-[11px] flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+            ADMIN
+          </a>
+        <% } %>
+      </nav>
+
+      <!-- Desktop User Auth Section -->
+      <div class="hidden md:flex items-center gap-2.5">
+        <% if (locals.user) { %>
+          <div class="flex items-center gap-2">
+            <a href="/driver/dashboard" class="flex items-center gap-2.5 px-3 py-1.5 rounded-full bg-white/[0.05] border border-white/10 hover:border-white/25 hover:bg-white/10 transition-all">
+              <% 
+                const navAvatar = (locals.user.discordAvatar && locals.user.discordId)
+                  ? `https://cdn.discordapp.com/avatars/${locals.user.discordId}/${locals.user.discordAvatar}.png?size=64`
+                  : `https://cdn.discordapp.com/embed/avatars/${(locals.user.discordId ? Number(BigInt(locals.user.discordId) >> 22n) % 6 : 0)}.png`;
+              %>
+              <img 
+                src="<%= navAvatar %>" 
+                alt="<%= locals.user.discordUsername %>" 
+                class="w-6 h-6 rounded-full object-cover border border-white/20 bg-slate-900 flex-shrink-0"
+                onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'; this.onerror=null;"
+              >
+              <% if (locals.user.raceNumber) { %>
+                <span class="font-mono font-bold text-xs px-1.5 py-0.2 rounded bg-black/40 border border-white/10 text-[#DE382B]">
+                  #<%= locals.user.raceNumber %>
+                </span>
+              <% } %>
+              <div class="text-left">
+                <div class="text-xs font-semibold text-white truncate max-w-[120px]">
+                  <%= locals.user.gamertag || locals.user.discordUsername %>
+                </div>
+              </div>
+            </a>
+            <form action="/auth/logout" method="POST" class="inline">
+              <button type="submit" title="Abmelden" class="p-2 rounded-full text-slate-400 hover:text-white hover:bg-white/10 transition-colors">
+                <i class="fas fa-sign-out-alt text-xs"></i>
+              </button>
+            </form>
+          </div>
+        <% } else { %>
+          <a href="/auth/login" class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold text-white bg-[#5865F2] hover:bg-[#4752C4] shadow-lg shadow-indigo-600/25 hover:-translate-y-0.5 transition-all">
+            <i class="fab fa-discord text-sm"></i>
+            <span>Mit Discord anmelden</span>
+          </a>
+        <% } %>
+      </div>
+
+      <!-- Mobile Hamburger Button -->
+      <div class="flex items-center md:hidden">
+        <button 
+          id="mobile-menu-toggle" 
+          type="button" 
+          aria-label="Menü öffnen"
+          class="p-2 rounded-full text-slate-300 hover:text-white hover:bg-white/10 focus:outline-none transition-colors"
+        >
+          <i id="hamburger-icon" class="fas fa-bars text-base"></i>
+          <i id="close-icon" class="fas fa-times text-base hidden"></i>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Mobile Navigation Dropdown -->
+    <div id="mobile-menu" class="hidden md:hidden pt-3 mt-3 border-t border-white/10 space-y-2">
+      <a href="/calendar" class="block px-3 py-2 rounded-xl text-sm font-medium transition-colors <%= (typeof currentPath !== 'undefined' && currentPath.startsWith('/calendar')) ? 'text-white bg-white/10 font-semibold' : 'text-slate-300 hover:bg-white/5' %>">
+        <i class="fas fa-calendar-alt w-5 text-center mr-1 text-[#DE382B]"></i> Rennkalender
+      </a>
+      <a href="/standings" class="block px-3 py-2 rounded-xl text-sm font-medium transition-colors <%= (typeof currentPath !== 'undefined' && currentPath.startsWith('/standings')) ? 'text-white bg-white/10 font-semibold' : 'text-slate-300 hover:bg-white/5' %>">
+        <i class="fas fa-trophy w-5 text-center mr-1 text-amber-400"></i> WM-Standings
+      </a>
+      <a href="/driver/roster" class="block px-3 py-2 rounded-xl text-sm font-medium transition-colors <%= (typeof currentPath !== 'undefined' && currentPath.startsWith('/driver/roster')) ? 'text-white bg-white/10 font-semibold' : 'text-slate-300 hover:bg-white/5' %>">
+        <i class="fas fa-users w-5 text-center mr-1 text-cyan-400"></i> Fahrerfeld
+      </a>
+
+      <% if (locals.user && (locals.user.role === 'ADMIN' || locals.user.isAdmin)) { %>
+        <a href="/admin" class="block px-3 py-2 rounded-xl text-sm font-medium text-amber-300 bg-amber-500/10 border border-amber-500/20">
+          <i class="fas fa-shield-halved w-5 text-center mr-1 text-amber-400"></i> Admin-Konsole
+        </a>
+      <% } %>
+
+      <div class="pt-2 border-t border-white/10">
+        <a 
+          href="https://thegridcom.org" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          class="flex items-center justify-between px-3 py-2 rounded-xl bg-white/[0.03] border border-white/10 text-xs font-mono text-slate-300"
+        >
+          <span class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-[#f97316]"></span>
+            <span>Überprojekt: thegridcom.org</span>
+          </span>
+          <i class="fas fa-external-link-alt text-[10px] opacity-60"></i>
+        </a>
+      </div>
+
+      <!-- Mobile Auth Links -->
+      <div class="pt-2 border-t border-white/10">
+        <% if (locals.user) { %>
+          <div class="space-y-2">
+            <% 
+              const mobAvatar = (locals.user.discordAvatar && locals.user.discordId)
+                ? `https://cdn.discordapp.com/avatars/${locals.user.discordId}/${locals.user.discordAvatar}.png?size=64`
+                : `https://cdn.discordapp.com/embed/avatars/${(locals.user.discordId ? Number(BigInt(locals.user.discordId) >> 22n) % 6 : 0)}.png`;
+            %>
+            <a href="/driver/dashboard" class="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-sm text-white font-medium">
+              <div class="flex items-center gap-2.5">
+                <img 
+                  src="<%= mobAvatar %>" 
+                  alt="<%= locals.user.discordUsername %>" 
+                  class="w-7 h-7 rounded-full object-cover border border-white/20 bg-slate-900"
+                  onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'; this.onerror=null;"
+                >
+                <span class="font-mono text-[#DE382B] font-bold">#<%= locals.user.raceNumber ?? '?' %></span>
+                <span><%= locals.user.gamertag || locals.user.discordUsername %></span>
+              </div>
+              <span class="text-xs font-mono text-slate-400 uppercase"><%= locals.user.role === 'ADMIN' ? 'Admin' : (locals.user.teamId ? 'Stammfahrer' : 'Ersatzfahrer') %></span>
+            </a>
+
+            <form action="/auth/logout" method="POST" class="block">
+              <button type="submit" class="w-full py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-medium text-slate-300 hover:text-white transition-colors">
+                Abmelden
+              </button>
+            </form>
+          </div>
+        <% } else { %>
+          <a href="/auth/login" class="w-full flex items-center justify-center gap-2 py-2.5 rounded-full bg-[#5865F2] hover:bg-[#4752C4] text-xs font-semibold text-white shadow-md">
+            <i class="fab fa-discord text-sm"></i> Mit Discord anmelden
+          </a>
+        <% } %>
+      </div>
+    </div>
+  </header>
+</div>
+
+<script>
+  // Mobile Menu Toggle Script
+  document.addEventListener('DOMContentLoaded', function () {
+    const toggleBtn = document.getElementById('mobile-menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const hamburgerIcon = document.getElementById('hamburger-icon');
+    const closeIcon = document.getElementById('close-icon');
+
+    if (toggleBtn && mobileMenu) {
+      toggleBtn.addEventListener('click', function () {
+        const isExpanded = !mobileMenu.classList.contains('hidden');
+        if (isExpanded) {
+          mobileMenu.classList.add('hidden');
+          hamburgerIcon.classList.remove('hidden');
+          closeIcon.classList.add('hidden');
+        } else {
+          mobileMenu.classList.remove('hidden');
+          hamburgerIcon.classList.add('hidden');
+          closeIcon.classList.remove('hidden');
+        }
+      });
+    }
+  });
+</script>
